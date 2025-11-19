@@ -1,41 +1,36 @@
+// 
+// VICHADOR
+// Es la pieza principal del módulo VIGÍA de la obra y se ocupa de 
+// la captura y procesamiento del video en vivo a través de una webcam.
+//
+// Cumple dos funciones principales:
+//  1. Detectar mediante la cámara los eventos de interacción del
+//     visitante y notificarlos por OSC al módulo OPERADOR.
+//  2. Realizar la fragmentación de la imagen capturada para, luego,
+//     ser enviada por un puerto de comunicación serial a la placa
+//     Arduino responsable de controlar los leds del "Fragmentador".
+//
+// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
 import processing.serial.*;
 import processing.video.*;
-import gab.opencv.*;
-
-// CONSTANTES
-final String CAMARA_01_NOMBRE = "c922 Pro Stream Webcam";
-final String CAMARA_02_NOMBRE = "Integrated Camera";
-
-// Dimensiones de la matriz de leds de la pantalla del "Fragmentador"
-final int FRAGMENTADOR_ANCHO = 11;
-final int FRAGMENTADOR_ALTO  = 25;
-
-// Dimensiones de cada fotograma capturado por la cámara
-final int CAMARA_ANCHO = 640;
-final int CAMARA_ALTO  = 480;
-
-// Dimensiones de cada una de las vistas a mostrar en la ventana
-final int VISTA_ANCHO  = FRAGMENTADOR_ANCHO * CAMARA_ALTO / FRAGMENTADOR_ALTO;
-final int VISTA_ALTO   = CAMARA_ALTO;
-
-// Dimensiones de la ventana de Processing
-final int VENTANA_ANCHO = VISTA_ANCHO * 2;
-final int VENTANA_ALTO  = CAMARA_ALTO;
-
-// Dimensiones de cada celda de la matriz del fragmentador
-final int FRAGMENTO_ANCHO = VISTA_ANCHO / FRAGMENTADOR_ANCHO;
-final int FRAGMENTO_ALTO  = VISTA_ALTO  / FRAGMENTADOR_ALTO;
 
 
-// VARIABLES GLOBALES
+// Variables para inicialización
 boolean serialInicializado = false;
 boolean camaraInicializada = false;
-byte[] datos = {0, 0, 0, 0, 0};
-boolean terminar = false;
-OpenCV opencv; 
-Serial puertoArduino;
-Capture camara;
 
+// Variables para la comunicación por el puerto serial
+Serial puertoArduino;
+byte[] datos = {0, 0, 0, 0, 0};
+boolean pausar = false;
+
+// Imágenes para almacenar el video capturado y su fragmentación
+Capture camara;
+PImage imagenOriginal, imagenFragmentada;
+
+// Parámetros de configuración para la fragmentación
+int fragConfigTinte, fragConfigSaturacion, fragConfigBrillo;
 
 
 /**
@@ -58,6 +53,11 @@ void setup() {
   background(0);
   serialInicializado = inicializarSerial();
   camaraInicializada = inicializarCamara();
+  
+  // Ajustes para la fragmentación de la imagen
+  fragConfigTinte      = FRAG01_TINTE;
+  fragConfigSaturacion = FRAG01_SATURACIÓN;
+  fragConfigBrillo     = FRAG01_BRILLO;
 }
 
 
@@ -68,12 +68,13 @@ void setup() {
 void draw() {
   if (camaraInicializada && camara.available()) {
     camara.read();
-    //opencv.loadImage(camara);
-    
-    PImage imagenOriginal    = camara.get(CAMARA_ANCHO/2 - VISTA_ANCHO/2, 0, VISTA_ANCHO, VISTA_ALTO);
-    PImage imagenFragmentada = fragmentarImagen(imagenOriginal, 21, 75, 12);
-    
-    image(imagenOriginal,  0, 0, VISTA_ANCHO, VISTA_ALTO);
+
+    // Capturar la imagen del video y crear la imagen para la fragmentación
+    imagenOriginal    = camara.get(CAMARA_ANCHO/2 - VISTA_ANCHO/2, 0, VISTA_ANCHO, VISTA_ALTO);
+    imagenFragmentada = fragmentarImagen(imagenOriginal, fragConfigTinte, fragConfigSaturacion, fragConfigBrillo);
+
+    // Mostrar en el previsualizador y enviar la imagen fragmentada por el puerto serial
+    image(imagenOriginal, 0, 0, VISTA_ANCHO, VISTA_ALTO);
     mostrarImagenFragmentada(imagenFragmentada, VISTA_ANCHO, 0);
     serializarImagenFragmentada(imagenFragmentada);
   }
@@ -97,6 +98,7 @@ PImage fragmentarImagen(PImage imagen) {
  * El tamaño de los píxeles dependen del ancho y el alto del "Fragmentador".
  * Si los parametros de "ajuste" de color son distintos de cero, se altera además
  * el tinte, la saturación y el brillo de cada pixel.
+ * La imagen es, además, espejada horizontalmente para que funcione como "espejo".
  */
 PImage fragmentarImagen(PImage imagen, int ajusteTinte, int ajusteSaturacion, int ajusteBrillo) {
   int indice = 0;
@@ -142,10 +144,16 @@ void mostrarImagenFragmentada(PImage imagen, int posX, int posY) {
  * serializarImagen
  * Envia los valores de cada uno de los píxeles de la imagen fragmentada
  * recibida como argumento a través del puerto serial de comunicación.
+ * Por cada pixel de la imagen fragmentada se envía un paquete de 5 bytes:
+ *   - BYTE #0: Coordenada X (entre 0 y 10)
+ *   - BYTE #1: Coordenada Y traspuesta (entre 0 y 24)
+ *   - BYTE #2: Valor numérico para el canal rojo del color del pixel
+ *   - BYTE #3: Valor numérico para el canal verde del color del pixel
+ *   - BYTE #4: Valor numérico para el canal azul del color del pixel
  */
 void serializarImagenFragmentada(PImage imagen) {
    
-  if (!terminar) {
+  if (!pausar) {
     int indice = 0;
     for (int i = 0; i < FRAGMENTADOR_ANCHO; i++) {
       for (int j = FRAGMENTADOR_ALTO - 1; j >= 0; j--) {
@@ -154,13 +162,12 @@ void serializarImagenFragmentada(PImage imagen) {
         int pixelX = i;
         int pixelY = FRAGMENTADOR_ALTO - j - 1;
         
-        // 2. SERIALIZACIÓN
-        // Luego, envío el valor del pixel por el puerto serial de comunicación
         datos[0] = byte(pixelX);
         datos[1] = byte(pixelY);
         datos[2] = byte(red(colorPixel));
         datos[3] = byte(green(colorPixel));
         datos[4] = byte(blue(colorPixel));
+        
         if (serialInicializado) {
           puertoArduino.write(datos);
         }
@@ -173,23 +180,36 @@ void serializarImagenFragmentada(PImage imagen) {
   }
 }
 
+
+/**
+ * enviarFinDeCuadro
+ * Envía un paquete de 5 bytes para indicar que ya fueron
+ * transmitidos todos los pixels de la imagen.
+ */
 void enviarFinDeCuadro() {
-    datos[0] = byte(25);
-    datos[1] = byte(25);
+    datos[0] = byte(CODIGO_FIN_DE_CUADRO);
+    datos[1] = byte(CODIGO_FIN_DE_CUADRO);
     datos[2] = byte(0);
     datos[3] = byte(0);
     datos[4] = byte(0);
     puertoArduino.write(datos); 
 }
 
+
+/**
+ * enviarPausa
+ * Envía un paquete de 5 bytes para indicar que la transferencia
+ * por el puerto serial ha sido pausada.
+ */
 void enviarPausa() {
-    datos[0] = byte(99);
-    datos[1] = byte(99);
+    datos[0] = byte(CODIGO_PAUSA);
+    datos[1] = byte(CODIGO_PAUSA);
     datos[2] = byte(0);
     datos[3] = byte(0);
     datos[4] = byte(0);
     puertoArduino.write(datos); 
 }
+
 
 /**
  * inicializarSerial
@@ -205,23 +225,26 @@ boolean inicializarSerial() {
     // CREACIÓN DEL PUERTO 
     // Se crea un puerto serial que debe ser el mismo que el puerto
     // donde está conectado el arduino. La velocidad de transferencia
-    // también debe coincidir en ambos casos (baud rate => 115200).
+    // también debe coincidir en ambos casos.
     //
-    puertoArduino = new Serial(this, Serial.list()[0], 115200); //115200);
+    puertoArduino = new Serial(this, Serial.list()[0], TASA_TRANSFERENCIA);
     
-    // VELOCIDAD DE TRANSFERENCIA
-    // Como la matriz de "pixel leds" tiene en total 275 leds y por cada
-    // uno de ellos se indican sus valores de rojo, verde y azul, que
-    // ocupan 1 byte por cada canal, entonces la velocidad en bits es:
+    // TASA DE TRANSFERENCIA
+    // La matriz de "pixel leds" tiene en total 275 leds y por cada uno
+    // de ellos se indican sus valores de rojo, verde y azul, que
+    // ocupan un byte por cada canal. Además, por cada pixel se envía
+    // también su posición <X,Y> en la matriz (un byte adicional por cada
+    // coordenada). En resumen, se envía un paquete de 5 bytes por pixel.
     //
-    //             275 * 3 * 8 = 6.600 bits/frame
+    //              275 * 5 * 8 = 11.600 bits/frame
     //
-    // Es decir, enviar un único fotograma consume 6.600 bits de la 
-    // tasa de transferencia. Por lo tanto, la velocidas de fps más 
-    // rápida permitida serían de 17fps:
-    //     17 frames/seg. x 6.600 bits/frame = 112.200 bits/seg.
+    // Es decir, enviar un único fotograma consume 11.600 bits de la tasa
+    // de transferencia. Por lo tanto, a una velocidad de 115.200 bits por 
+    // segundo, la tasa de fps debería ser inferior a los 10,5 fps.
     // 
-    frameRate(12);
+    //    10.5 frames/seg. x 11.600 bits/frame = 115.500 bits/seg.
+    // 
+    frameRate(10);
     println("PUERTO SERIAL CONECTADO");
     return true;
   }
@@ -240,7 +263,6 @@ boolean inicializarSerial() {
 boolean inicializarCamara() {  
   String[] listadoDeCamaras = Capture.list();
   if (listadoDeCamaras.length > 0) {
-      printArray(listadoDeCamaras);
       int indiceCamara = 0;
       for (int i = 0; i < listadoDeCamaras.length; i++) {
         if (listadoDeCamaras[i].startsWith(CAMARA_01_NOMBRE)) {
@@ -250,10 +272,6 @@ boolean inicializarCamara() {
       }
       camara = new Capture(this, listadoDeCamaras[indiceCamara], 30);
       camara.start();
-      
-      // Inicializar un objeto de OpenCV para manipular el video
-      // https://github.com/atduskgreg/opencv-processing
-      opencv = new OpenCV(this, CAMARA_ANCHO, CAMARA_ALTO);
       println("CAMARA ACTIVADA");
       return true;
   }
@@ -264,13 +282,53 @@ boolean inicializarCamara() {
 }
 
 
+/**
+ * keyPressed
+ * Función estándar de Processing para detectar las teclas presionadas.
+ * En este caso se utiliza para pausar la ejecución del fragmentador y
+ * también para alternar y "tunear" las configuraciones posibles de
+ * tinte, saturación y brillo del "Fragmentador".
+ */
 void keyPressed() {
   
+    // Al presionar la letra "Q" la pantalla del "Fragmentador" se
+    // apaga y no se envían paquetes de datos por el puerto serial.
+    // Presionando cualquier otra tecla se reanuda la ejecución.
     if (key == 'q' || key == 'Q') {
       enviarPausa();
-      terminar = true;
+      pausar = true;
     }
     else {
-      terminar = false;
+      pausar = false;
+    }
+    
+    
+    // Las teclas 1, 2, 3, 4 y 5 permiten alternar entre las distintas
+    // configuraciones (predefinidas) de tinte, saturación y brillo del
+    // "Fragmentador". Pueden ajustarse sus valores para un tuneo más fino.
+    if (key == '1') {
+      fragConfigTinte      = FRAG01_TINTE;
+      fragConfigSaturacion = FRAG01_SATURACIÓN;
+      fragConfigBrillo     = FRAG01_BRILLO;
+    }
+    else if (key == '2') {
+      fragConfigTinte      = FRAG02_TINTE;
+      fragConfigSaturacion = FRAG02_SATURACIÓN;
+      fragConfigBrillo     = FRAG02_BRILLO;
+    }
+    else if (key == '3') {
+      fragConfigTinte      = FRAG03_TINTE;
+      fragConfigSaturacion = FRAG03_SATURACIÓN;
+      fragConfigBrillo     = FRAG03_BRILLO;
+    }
+    else if (key == '4') {
+      fragConfigTinte      = FRAG04_TINTE;
+      fragConfigSaturacion = FRAG04_SATURACIÓN;
+      fragConfigBrillo     = FRAG04_BRILLO;
+    }
+    else if (key == '5') {
+      fragConfigTinte      = FRAG05_TINTE;
+      fragConfigSaturacion = FRAG05_SATURACIÓN;
+      fragConfigBrillo     = FRAG05_BRILLO;
     }
 }
