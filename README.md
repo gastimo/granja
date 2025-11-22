@@ -10,7 +10,7 @@ Montadas en una estructura de soportes de chapa que remite a una granja de clics
 # La Instalación
 La instalación de la obra es una especie de parrilla metálica construida con perfiles ranurados de chapa 22 que evoca a la estructura de las "granjas de clics" sobre la que se montan seis pantallas de acrílico.
 
-![Instalación de la granja de clicks](imagineria/diagrama-granja.png)
+![Instalación de la granja de clicks](media/diagrama-granja.png)
 
 ## Las Pantallas Empañadas
 Cada pantalla tiene algún tipo de operación de empañamiento, ya sea mediante la gráfica generativa o a través de algún dispositvo **enturbiador** adosado a la estructura. En esta primera versión de la obra, la instalación cuenta con seis pantallas ("*Media docena de empañadas*") sujetas a la estructura de la granja*. 
@@ -24,9 +24,10 @@ Cada pantalla tiene algún tipo de operación de empañamiento, ya sea mediante 
 
 > (*) En una versión posterior, se propone incorporar seis pantallas adicionales para llegar a la docena completa de *empañadas*.
 
-## Los Equipos
-La obra cuenta con tres equipos principales donde corren los programas responsables de la captura de las imágenes, la activación de las pantallas y la generación de las visuales a mostrar en cada pantalla.
-- **EQUIPO #1 - OPERADOR**: orquestador de los enturbiadores y de su activación/desactivación en cada una de las pantallas. También se ocupa de reproducir los sonidos.
-- **EQUIPO #2 - VIGÍA**: a través de una cámara dispuesta en el centro de la estructura, captura las imágenes del entorno y detecta los eventos del visitante que deban ser notificados al operador.
-- **EQUIPO #3 - GENERADOR**: responsable de producir la gráfica generativa para cada una de las pantallas de la instalación.
+## Los Procesadores
+La obra cuenta con cuatro **procesadores** responsables de la ejecución de los programas que asumen los roles principales de "Capataz", "Vichador", "Productor" y "Arriero". Si bien esta arquitectura hace una separación lógica de los procesadores según la función que desempeñan en la granja, la instalación podría simplificarse utilizando tan sólo dos computadoras/laptops físicas donde corran estos procesadores:
+- **PROCESADOR #1 - EL "CAPATAZ"**: orquestador y domador de los enturbiadores. Responsable de su activación/desactivación en cada una de las pantallas. También se ocupa de reproducir los sonidos de la granja.
+- **PROCESADOR #2 - EL "VICHADOR"**: a través de una cámara dispuesta en el centro de la estructura, captura las imágenes del entorno y detecta los eventos del visitante que deban ser notificados al "Capataz". También lleva a cabo al fragmentación de la imagen de video capturada para mostrar en la "Pantalla #6".
+- **PROCESADOR #3 - EL "PRODUCTOR"**: responsable de producir la gráfica generativa para cada una de las pantallas de la instalación, excepto para la "Pantalla #6". Las intervenciones sobre la gráfica responden, también, a las órdenes impartidas por el "Capataz" de la granja (recibidas por OSC).
+- **PROCESADOR #4 - EL "ARRIERO"**: se ocupa de recibir la información de los píxeles de la imagen fragmentada por el "Vichador" y de alguna forma los "arrea" u ordena para acomodarlos en la matriz de leds (11x25). Los píxeles organizados son, luego, derivados al "Acorralador" para que los ubique en el lugar que le corresponde a cada uno de ellos (en su celda o "corral" de la pantalla-matriz).
 

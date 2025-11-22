@@ -11,7 +11,6 @@
 #define PIN_LED_04 10
 #define PIN_LED_05 11
 #define PIN_LED_06 12
-#define PIN_LED_TESTIGO 6
 
 // Cantidades de leds de cada tira
 #define CANTIDAD_LEDS_01 23
@@ -21,12 +20,12 @@
 #define CANTIDAD_LEDS_05 23
 #define CANTIDAD_LEDS_06 23
 
-#define UMBRAL_LDR 280
+#define UMBRAL_LDR 220
 
 // Variables globales
 int lectura1;
 int lectura2;
-boolean estado = false;
+boolean estado = true;
 boolean estadoAnterior = false;
 int tiraEncendida = 0;
 
@@ -62,14 +61,16 @@ void setup() {
 void loop() {
   lectura1 = analogRead(PIN_LDR_01);
   lectura2 = analogRead(PIN_LDR_02);
-  //Serial.print("Lectura LDR 01=");
-  //Serial.println(lectura1);
+  Serial.print("Lectura LDR 01=");
+  Serial.print(lectura1);
+  Serial.print("  - Lectura LDR 02=");
+  Serial.println(lectura2);
 
   if (lectura1 > UMBRAL_LDR || lectura2 > UMBRAL_LDR) {
-    estado = true;
+    estado = false;
   }
   else {
-    estado = false;
+    estado = true;
   }
 
   // Detecto si se debe apagar la tira de leds encendida
@@ -82,7 +83,7 @@ void loop() {
 
   // Sino, detecto si se debe encender una tira led
   else if (estado && !estadoAnterior) {
-    tiraEncendida = 3; //random(4);
+    tiraEncendida = 5;          //random(6);
     Serial.print("NUEVA TIRA=");
     Serial.println(tiraEncendida);
     tiras[tiraEncendida].fill(tiras[tiraEncendida].Color(30,0,0)); 

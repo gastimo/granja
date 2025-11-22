@@ -5,7 +5,7 @@
 //
 // Cumple dos funciones principales:
 //  1. Detectar mediante la cámara los eventos de interacción del
-//     visitante y notificarlos por OSC al módulo OPERADOR.
+//     visitante y not4ificarlos por OSC al módulo OPERADOR.
 //  2. Realizar la fragmentación de la imagen capturada para, luego,
 //     ser enviada por un puerto de comunicación serial a la placa
 //     Arduino responsable de controlar los leds del "Fragmentador".
@@ -187,12 +187,14 @@ void serializarImagenFragmentada(PImage imagen) {
  * transmitidos todos los pixels de la imagen.
  */
 void enviarFinDeCuadro() {
-    datos[0] = byte(CODIGO_FIN_DE_CUADRO);
-    datos[1] = byte(CODIGO_FIN_DE_CUADRO);
-    datos[2] = byte(0);
-    datos[3] = byte(0);
-    datos[4] = byte(0);
-    puertoArduino.write(datos); 
+    if (serialInicializado) {
+      datos[0] = byte(CODIGO_FIN_DE_CUADRO);
+      datos[1] = byte(CODIGO_FIN_DE_CUADRO);
+      datos[2] = byte(0);
+      datos[3] = byte(0);
+      datos[4] = byte(0);
+      puertoArduino.write(datos); 
+    }
 }
 
 
@@ -202,12 +204,14 @@ void enviarFinDeCuadro() {
  * por el puerto serial ha sido pausada.
  */
 void enviarPausa() {
+  if (serialInicializado) {
     datos[0] = byte(CODIGO_PAUSA);
     datos[1] = byte(CODIGO_PAUSA);
     datos[2] = byte(0);
     datos[3] = byte(0);
     datos[4] = byte(0);
-    puertoArduino.write(datos); 
+    puertoArduino.write(datos);
+  }
 }
 
 

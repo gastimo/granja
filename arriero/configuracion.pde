@@ -27,7 +27,7 @@ int CAMARA_ALTO  = 480;
 //  PARÁMETROS PARA LA COMUNICACIÓN SERIAL
 //
 // =========================================================
-int TASA_TRANSFERENCIA = 115200;
+int TASA_TRANSFERENCIA   = 115200;
 int CODIGO_FIN_DE_CUADRO = 25;
 int CODIGO_PAUSA         = 99;
 
@@ -53,31 +53,3 @@ int VENTANA_ALTO  = CAMARA_ALTO;
 // Dimensiones de cada celda (pixel) de la matriz del fragmentador
 int FRAGMENTO_ANCHO = VISTA_ANCHO / FRAGMENTADOR_ANCHO;
 int FRAGMENTO_ALTO  = VISTA_ALTO  / FRAGMENTADOR_ALTO;
-
-
-
-// =========================================================
-// 
-//  PARÁMETROS DEL "FRAGMENTADOR"
-//
-// =========================================================
-
-int FRAG01_TINTE      = 21;
-int FRAG01_SATURACIÓN = 75;
-int FRAG01_BRILLO     = -2;
-        
-int FRAG02_TINTE      = 104;
-int FRAG02_SATURACIÓN = 55;
-int FRAG02_BRILLO     = -8;
-
-int FRAG03_TINTE      = 221;
-int FRAG03_SATURACIÓN = 65;
-int FRAG03_BRILLO     = -24;
-
-int FRAG04_TINTE      = 9;
-int FRAG04_SATURACIÓN = 70;
-int FRAG04_BRILLO     = -41;
-
-int FRAG05_TINTE      = 78;
-int FRAG05_SATURACIÓN = 93;
-int FRAG05_BRILLO     = -16;
