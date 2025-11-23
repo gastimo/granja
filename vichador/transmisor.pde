@@ -95,9 +95,13 @@ class Transmisor {
           
           datos[0] = byte(pixelX);
           datos[1] = byte(pixelY);
-          datos[2] = byte(int(red(colorPixel)) - 128);
-          datos[3] = byte(int(green(colorPixel)) - 128);
-          datos[4] = byte(int(blue(colorPixel)) - 128);
+          datos[2] = byte(red(colorPixel));
+          datos[3] = byte(green(colorPixel));
+          datos[4] = byte(blue(colorPixel));
+          
+          //datos[2] = byte(int(red(colorPixel)) - 128);
+          //datos[3] = byte(int(green(colorPixel)) - 128);
+          //datos[4] = byte(int(blue(colorPixel)) - 128);
           
           enviar(datos);
         }

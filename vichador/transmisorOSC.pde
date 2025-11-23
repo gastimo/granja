@@ -10,10 +10,14 @@
 import oscP5.*;
 import netP5.*;
 
+
 // Contantes para definir los IPs y los puertos
 final int PUERTO_LOCAL   = 12000;
-final int PUERTO_DESTINO = 12001;
-final String IP_DESTINO  = "192.168.0.3"; 
+final int PUERTO_DESTINO = 12001;         // Puerto del "Arriero" 
+final String IP_DESTINO  = "192.168.0.3"; // IP del "Arriero"
+//final String IP_DESTINO  = "192.168.0.9";  // IP del "Arriero"
+
+
 
 OscP5 oscP5;
 NetAddress direccionRemota;
@@ -27,6 +31,7 @@ class TransmisorOSC extends Transmisor {
   OscMessage mensajeOSC;
   byte[] datos = {0x00, 0x00, 0x00, 0x00, 0x00};
   boolean inicializado = false;
+  
   
   public TransmisorOSC(PApplet contenedor) {
     // Se inicializa un objeto "oscP5", escuchando mensajes
@@ -42,14 +47,6 @@ class TransmisorOSC extends Transmisor {
     inicializado = true;
   }
   
-  public void enviarFinDeCuadro() {
-    datos[0] = byte(CODIGO_FIN_DE_CUADRO);
-    datos[1] = byte(CODIGO_FIN_DE_CUADRO);
-    datos[2] = byte(0);
-    datos[3] = byte(0);
-    datos[4] = byte(0);
-    enviar(datos, "/granja/fin");
-  }
   
   public void enviar(byte[] paquete, String dirección) {
     if (inicializado) {
@@ -57,8 +54,29 @@ class TransmisorOSC extends Transmisor {
       mensajeOSC.add(paquete);
       oscP5.send(mensajeOSC, direccionRemota);
     }
+  }  
+  
+  
+  public void enviarFinDeCuadro() {
+    datos[0] = byte(CODIGO_FIN_DE_CUADRO);
+    datos[1] = byte(CODIGO_FIN_DE_CUADRO);
+    datos[2] = byte(0);
+    datos[3] = byte(0);
+    datos[4] = byte(0);
+    enviar(datos, MENSAJE_OSC_CIERRE);
   }
   
+  
+  public void enviarPausa() {
+    datos[0] = byte(CODIGO_PAUSA);
+    datos[1] = byte(CODIGO_PAUSA);
+    datos[2] = byte(0);
+    datos[3] = byte(0);
+    datos[4] = byte(0);
+    enviar(datos, MENSAJE_OSC_PAUSA);
+  }
+    
+    
   /**
    * enviar
    * Envia los valores de cada uno de los píxeles de la imagen (fragmentada)
@@ -92,7 +110,7 @@ class TransmisorOSC extends Transmisor {
         }
       }
       imagen.updatePixels();
-      enviar(paquete, "/granja/cuadro");     
+      enviar(paquete, MENSAJE_OSC_FOTOGRAMA);     
     }
     else {
       enviarPausa();

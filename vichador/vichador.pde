@@ -12,13 +12,27 @@
 //
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-// Constantes globales para el procesamiento
-final boolean TRANSMITIR_X_SERIAL = false;
+// 
+// Este módulo puede, o bien enviar los píxeles de la imagen fragmentada
+// directamente a la pantalla de leds (al "Acorralador"), o bien puede 
+// enviárselos al "Arriero" (un equipo intermediario) para que éste, a su
+// vez, los encamine hacia la pantalla de leds para su encorralamiento.
+//  - FALSE: el "Vichador" envía los pixeles a la pantalla (serial)
+//  - TRUE : el "Vichador" envía los píxeles al "Arriero" (OSC)
+//
+final boolean ENVIAR_PIXELES_AL_ARRIERO = true;
+
+
+// Definición de mensajes OSC a intercambiar con el "Arriero" 
+final String MENSAJE_OSC_FOTOGRAMA = "/granja/fotograma";
+final String MENSAJE_OSC_CIERRE    = "/granja/cierre";
+final String MENSAJE_OSC_PAUSA     = "/granja/pausa";
 
 
 // Transmisores para el "Capataz" y para el "Arriero"
-Transmisor transmisorDelCapataz;
-Transmisor transmisorDelArriero;
+Transmisor transmisorDeMensajes;
+Transmisor transmisorDePixeles;
+
 
 // Variables para el procesamiento y fragmentación del video
 Camara camara;
@@ -50,15 +64,14 @@ void setup() {
   background(0);
   
   // Inicialización de los transmisores
-  transmisorDelCapataz = new TransmisorOSC(this);  
-  transmisorDelArriero = TRANSMITIR_X_SERIAL ? new TransmisorSerial(this) : transmisorDelCapataz; 
+  transmisorDeMensajes = new TransmisorOSC(this);  
+  transmisorDePixeles = !ENVIAR_PIXELES_AL_ARRIERO ? new TransmisorSerial(this) : transmisorDeMensajes; 
   
   // Inicialización de la cámara 
   camara = new Camara(this);
   
   // Inicialización de los parámetros para la fragmentación
   fragmentador = new Fragmentador();
-  fragmentador.configurar(MODO_FRAGMENTACION);
 }
 
 
@@ -72,7 +85,7 @@ void draw() {
 
     // Capturar la imagen del video en vivo y crear la imagen fragmentada
     imagenOriginal = camara.video().get(CAMARA_ANCHO/2 - VISTA_ANCHO/2, 0, VISTA_ANCHO, VISTA_ALTO);
-    if (!transmisorDelArriero.enPausa()) {
+    if (!transmisorDePixeles.enPausa()) {
       imagenFragmentada = fragmentador.procesar(imagenOriginal);
     }
 
@@ -80,8 +93,8 @@ void draw() {
     image(imagenOriginal, 0, 0, VISTA_ANCHO, VISTA_ALTO);
     fragmentador.mostrar(imagenFragmentada, VISTA_ANCHO, 0);
     
-    if (frameCount % (TRANSMITIR_X_SERIAL? 3 : 1) == 0) {
-      transmisorDelArriero.enviar(imagenFragmentada);
+    if (frameCount % (ENVIAR_PIXELES_AL_ARRIERO ? 2 : 3) == 0) {
+      transmisorDePixeles.enviar(imagenFragmentada);
     }
   }
 }
@@ -100,18 +113,18 @@ void keyPressed() {
     // "Capataz" como al "Arriero". La pantalla del "Fragmentador", se
     // apaga. Presionando cualquier otra tecla se reanuda la ejecución.
     if (key == 'q' || key == 'Q') {
-      transmisorDelCapataz.pausar();
-      transmisorDelArriero.pausar();
+      transmisorDeMensajes.pausar();
+      transmisorDePixeles.pausar();
     }
     else {
-      transmisorDelCapataz.reanudar();
-      transmisorDelArriero.reanudar();
+      transmisorDeMensajes.reanudar();
+      transmisorDePixeles.reanudar();
     }
     
     // Las teclas 1, 2, 3, 4 y 5 permiten alternar entre las distintas
     // configuraciones (predefinidas) de tinte, saturación y brillo del
     // "Fragmentador". Pueden ajustarse sus valores para un tuneo más fino.
-    if (key == '1' || key == '2' || key == '3' || key == '4' || key == '5') {
+    if (key == '0' || key == '1' || key == '2' || key == '3' || key == '4' || key == '5' || key == '6') {
       fragmentador.configurar(key);
     }
 }

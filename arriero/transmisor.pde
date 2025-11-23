@@ -42,7 +42,6 @@ class Transmisor {
     println("Transmitiendo " + datos.length + " bytes de datos...");
   }
   
-
   /**
    * enviarFinDeCuadro
    * Envía un paquete de 5 bytes para indicar que ya fueron
@@ -71,7 +70,6 @@ class Transmisor {
     enviar(datos);
   }
   
-  
   /**
    * enviar
    * Envia los valores de cada uno de los píxeles de la imagen (fragmentada)
@@ -98,7 +96,6 @@ class Transmisor {
           datos[2] = byte(red(colorPixel));
           datos[3] = byte(green(colorPixel));
           datos[4] = byte(blue(colorPixel));
-          
           enviar(datos);
         }
       }

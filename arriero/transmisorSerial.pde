@@ -27,7 +27,6 @@ class TransmisorSerial extends Transmisor {
       // también debe coincidir en ambos casos.
       puertoSerial = new Serial(contenedor, Serial.list()[0], TASA_TRANSFERENCIA);
       
-      
       // TASA DE TRANSFERENCIA
       // La matriz de "pixel leds" tiene en total 275 leds y por cada uno
       // de ellos se indican sus valores de rojo, verde y azul, que
