@@ -20,7 +20,7 @@
 //  - FALSE: el "Vichador" envía los pixeles a la pantalla (serial)
 //  - TRUE : el "Vichador" envía los píxeles al "Arriero" (OSC)
 //
-final boolean ENVIAR_PIXELES_AL_ARRIERO = false;
+final boolean ENVIAR_PIXELES_AL_ARRIERO = true;
 
 
 // Definición de mensajes OSC a intercambiar con el "Arriero" 
@@ -59,7 +59,7 @@ void settings() {
  * iniciales y de configuración.
  */
 void setup() {
-  frameRate(30);
+  frameRate(60);
   colorMode(RGB, 255); 
   background(0);
   
@@ -93,7 +93,7 @@ void draw() {
     image(imagenOriginal, 0, 0, VISTA_ANCHO, VISTA_ALTO);
     fragmentador.mostrar(imagenFragmentada, VISTA_ANCHO, 0);
     
-    if (frameCount % (ENVIAR_PIXELES_AL_ARRIERO ? 1 : 3) == 0) {
+    if (frameCount % (ENVIAR_PIXELES_AL_ARRIERO ? 1 : 5) == 0) {
       transmisorDePixeles.enviar(imagenFragmentada);
     }
   }

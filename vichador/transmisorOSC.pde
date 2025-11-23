@@ -14,8 +14,8 @@ import netP5.*;
 // Contantes para definir los IPs y los puertos
 final int PUERTO_LOCAL   = 12000;
 final int PUERTO_DESTINO = 12001;         // Puerto del "Arriero" 
-final String IP_DESTINO  = "192.168.0.3"; // IP del "Arriero"
-//final String IP_DESTINO  = "192.168.0.9";  // IP del "Arriero"
+//final String IP_DESTINO  = "192.168.0.3"; // IP del "Arriero"
+final String IP_DESTINO  = "192.168.0.9";  // IP del "Arriero"
 
 
 
@@ -110,7 +110,7 @@ class TransmisorOSC extends Transmisor {
         }
       }
       imagen.updatePixels();
-      enviar(paquete, MENSAJE_OSC_FOTOGRAMA);     
+      enviar(paquete, MENSAJE_OSC_FOTOGRAMA);
     }
     else {
       enviarPausa();
