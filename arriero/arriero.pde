@@ -1,12 +1,19 @@
 // 
-// EL "ARRIERO"
-// Recibe por el protocolo OSC los valore RGB de cada uno de los píxeles
-// de la imagen capturada y fragmentada por el “Vichador de la Granja”.
-// Los píxeles son organizados (arreados) en la forma de una matriz (11x25)
-// y enviados al “Acorralador de Leds” por el puerto serial de comunicación
-// para que éste los acomode.
+// ARRIERO
+// Código principal del módulo "Arriero".
 //
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+
+// Transmisores para recibir información del "Vichador"
+// y enviar los datos al "Acorraldor"
+Transmisor transmisorDelVichador;
+Transmisor transmisorDelAcorralador;
+
+// Variables para el procesamiento y fragmentación del video
+Fragmentador fragmentador;
+PImage imagenFragmentada;
+byte paquete[];
+
 
 /**
  * settings
@@ -14,7 +21,7 @@
  * definir las dimensiones de la ventana principal mediante variables.
  */
 void settings() {
-  size(VENTANA_ANCHO, VENTANA_ALTO);
+  size(VISTA_ANCHO, CAMARA_ALTO);
 }
 
 
@@ -24,6 +31,19 @@ void settings() {
  * iniciales y de configuración.
  */
 void setup() {
+  frameRate(60);
+  colorMode(RGB, 255); 
+  background(0);
+  
+  // Inicialización de los transmisores
+  transmisorDelVichador    = new TransmisorOSC(this);  
+  transmisorDelAcorralador = new TransmisorSerial(this); 
+  
+  // Inicialización de los parámetros para la fragmentación
+  fragmentador = new Fragmentador();
+  fragmentador.configurar(MODO_FRAGMENTACION);
+  imagenFragmentada = createImage(FRAGMENTADOR_ANCHO, FRAGMENTADOR_ALTO, RGB);
+  imagenFragmentada.loadPixels();
 }
 
 
@@ -32,4 +52,41 @@ void setup() {
  * iteraciones del ciclo principal
  */
 void draw() {
+    fragmentador.mostrar(imagenFragmentada, 0, 0);
+    if (frameCount % 3 == 0) {
+      transmisorDelAcorralador.enviar(imagenFragmentada);
+    }
+}
+
+
+void oscEvent(OscMessage mensajeEntrante) {
+  int pixelX, pixelY, indice;
+  
+  if (mensajeEntrante.checkAddrPattern("/granja/fin")) {
+    if (mensajeEntrante.checkTypetag("b")) {
+      transmisorDelAcorralador.enviarFinDeCuadro();
+    }
+  }
+
+  else if (mensajeEntrante.checkAddrPattern("/granja/cuadro")) {
+    if (mensajeEntrante.checkTypetag("b")) {
+      paquete = mensajeEntrante.get(0).blobValue();
+      pixelX = 0;
+      pixelY = 0;
+      for (int i = 0; i + 2 < paquete.length; i += 3) {
+        indice = pixelX + ((FRAGMENTADOR_ALTO - pixelY - 1) * FRAGMENTADOR_ANCHO);
+        imagenFragmentada.pixels[indice] = color(int(paquete[i]), 
+                                                 int(paquete[i+1]), 
+                                                 int(paquete[i+2]));
+        if (pixelY == 24) {
+          pixelY = 0;
+          pixelX++;
+        }
+        else {
+          pixelY++;
+        }
+      }
+      imagenFragmentada.updatePixels();
+    }
+  }
 }
