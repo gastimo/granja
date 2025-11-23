@@ -20,7 +20,6 @@ final int FRAGMENTO_ALTO  = VISTA_ALTO  / FRAGMENTADOR_ALTO;
 
 
 class Corraleta {
-  int indice = 0;
   PImage imagen;
   
   public Corraleta() {  
@@ -39,7 +38,7 @@ class Corraleta {
    * corraleta que les corresponde.
    */
   public void arrear(int x, int y, int rojo, int verde, int azul) {
-    indice = x + ((FRAGMENTADOR_ALTO - y - 1) * FRAGMENTADOR_ANCHO);
+    int indice = x + ((FRAGMENTADOR_ALTO - y - 1) * FRAGMENTADOR_ANCHO);
     imagen.pixels[indice] = color(rojo, verde, azul);
   }
   
@@ -59,7 +58,7 @@ class Corraleta {
    * de las coordenadas x e y recibidas como argumento.
    */
   void mostrar(int posX, int posY) {
-    indice = 0;
+    int indice = 0;
     for (int j = 0; j < FRAGMENTADOR_ALTO; j++) {
       for (int i = 0; i < FRAGMENTADOR_ANCHO; i++) {
         fill(imagen.pixels[indice]);

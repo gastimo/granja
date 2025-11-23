@@ -90,7 +90,6 @@ class Transmisor {
           color colorPixel = imagen.pixels[indice];
           int pixelX = i;
           int pixelY = imagen.height - j - 1;
-          
           datos[0] = byte(pixelX);
           datos[1] = byte(pixelY);
           datos[2] = byte(red(colorPixel));

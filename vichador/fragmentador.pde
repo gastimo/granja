@@ -34,13 +34,13 @@ final int FRAG03_TINTE      = 221;
 final int FRAG03_SATURACION = 65;
 final int FRAG03_BRILLO     = -24;
 
-final int FRAG04_TINTE      = 9;
-final int FRAG04_SATURACION = 70;
-final int FRAG04_BRILLO     = -41;
+final int FRAG04_TINTE      = 3;
+final int FRAG04_SATURACION = -61;
+final int FRAG04_BRILLO     = -18;
 
 final int FRAG05_TINTE      = 78;
 final int FRAG05_SATURACION = 93;
-final int FRAG05_BRILLO     = -16;
+final int FRAG05_BRILLO     = -15;
 
 final int FRAG06_TINTE      = 13;
 final int FRAG06_SATURACION = 52;
@@ -92,11 +92,11 @@ class Fragmentador {
     for (int j = 0; j < FRAGMENTADOR_ALTO; j++) {
       for (int i = FRAGMENTADOR_ANCHO - 1; i >= 0; i--) {
         color colorPixel = imagen.get((i * FRAGMENTO_ANCHO) + (FRAGMENTO_ANCHO/2), (j * FRAGMENTO_ALTO) + (FRAGMENTO_ALTO/2));
-        boolean esFondo = saturation(colorPixel) < 18 || brightness(colorPixel) < 8;
+        boolean esFondo = saturation(colorPixel) < 13 || brightness(colorPixel) < 11;
         float colorTinte      = ajusteTinte == 0      ? hue(colorPixel) : esFondo ? (hue(colorPixel) + 172 + ajusteTinte/2) % 360 : (hue(colorPixel) + ajusteTinte) % 360;
         float colorSaturacion = ajusteSaturacion == 0 ? constrain(saturation(colorPixel) * 2.2, 0, 100) : 
                                                         esFondo ? constrain(ajusteSaturacion - 10, 0, 100) : constrain(ajusteSaturacion, 0, 100);
-        float colorBrillo     = ajusteBrillo == 0     ? constrain(brightness(colorPixel) * 0.61, 0, 100) : 
+        float colorBrillo     = ajusteBrillo == 0     ? constrain(brightness(colorPixel) * 0.72, 0, 100) : 
                                                         esFondo ? constrain(brightness(colorPixel/10) + (ajusteBrillo*1.5), 0, 100) : constrain(brightness(colorPixel) + (ajusteBrillo*2), 0, 100);
         colorPixel = color(int(colorTinte), int(colorSaturacion), int(colorBrillo));   
         imagenFragmentada.pixels[indice++] = colorPixel;
