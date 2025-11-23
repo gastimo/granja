@@ -12,9 +12,9 @@ int posX = 0;
 int posY = 0;
 int cantPixeles = FRAGMENTADOR_ANCHO * FRAGMENTADOR_ALTO;
 int pixelesRecibidos = 0;
-float maxBrilloR = 16;
-float maxBrilloG = 17;
-float maxBrilloB = 19;
+float maxBrilloR = 17;
+float maxBrilloG = 18;
+float maxBrilloB = 20;
 int valorR = int(maxBrilloR);
 int valorG = int(maxBrilloG);
 int valorB = int(maxBrilloB);
@@ -36,26 +36,27 @@ void loop() {
     if (bytesLeidos == 5) {
       posX = int(datos[0]);
       posY = int(datos[1]);
-      if (posX < MAX_POSICION && posY < MAX_POSICION) { 
+      if (posX < MAX_POSICION && posY < MAX_POSICION) {
+        //pixelesRecibidos++;
         valorR = int(datos[2]) * maxBrilloR / MAX_BRILLO;
         valorG = int(datos[3]) * maxBrilloG / MAX_BRILLO;
         valorB = int(datos[4]) * maxBrilloB / MAX_BRILLO;
         indice = (posX * FRAGMENTADOR_ALTO) + posY;
         strip.setPixelColor(indice, strip.Color(valorR, valorG, valorB));
       }
-      else if (posX == NULL_POSICION && posY == NULL_POSICION) {
-        strip.fill(strip.Color(0,0,0)); 
-        strip.show();
-        break;
-      }
+      //else if (posX == NULL_POSICION && posY == NULL_POSICION) {
+      //  strip.fill(strip.Color(0,0,0)); 
+      //  strip.show();
+      //  break;
+      //}
       else {
         strip.show();
         break;
       }
     }
-    if (pixelesRecibidos >= cantPixeles / FRAGMENTADOR_ANCHO) {
-      pixelesRecibidos = 0;
-      strip.show();
-    }
+    //if (pixelesRecibidos >= 25) {
+    //  pixelesRecibidos = 0;
+    //  strip.show();
+    //}
   }
 }
