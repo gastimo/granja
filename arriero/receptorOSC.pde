@@ -10,20 +10,13 @@
 import oscP5.*;
 import netP5.*;
 
-// Puerto donde está escuchando el "Arriero". Este módulo sólo
-// recibe mensajes OSC desde el "Vichador" y desde el "Capataz".
-// No envía ningún mensaje, por lo tanto, no es necesaria la
-// configuración de los puertos e IPs de destino o salida.
-final int PUERTO_LOCAL = 12001; 
-
-class ReceptorOSC extends Transmisor {
+class ReceptorOSC {
   OscP5 oscP5;
   NetAddress direccionRemota;
   boolean inicializado = false;
   
-  public ReceptorOSC(PApplet contenedor) {
-    // Se inicializa un objeto "oscP5", escuchando mensajes entrantes
-    oscP5 = new OscP5(contenedor, PUERTO_LOCAL);
+  public ReceptorOSC(PApplet contenedor, int puertoLocal) {
+    oscP5 = new OscP5(contenedor, puertoLocal);
     inicializado = true;
   }
 }

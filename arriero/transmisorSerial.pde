@@ -13,9 +13,10 @@ import processing.serial.*;
 int TASA_TRANSFERENCIA = 115200;
 
 
-class TransmisorSerial extends Transmisor {
+class TransmisorSerial implements Transmisor {
   Serial puertoSerial;
   boolean inicializado = false;
+  byte[] datos = {0x00, 0x00, 0x00, 0x00, 0x00};
   
   public TransmisorSerial(PApplet contenedor) {
     String[] puertos = Serial.list();
@@ -26,6 +27,7 @@ class TransmisorSerial extends Transmisor {
       // donde está conectado el arduino. La velocidad de transferencia
       // también debe coincidir en ambos casos.
       puertoSerial = new Serial(contenedor, Serial.list()[0], TASA_TRANSFERENCIA);
+      
       
       // TASA DE TRANSFERENCIA
       // La matriz de "pixel leds" tiene en total 275 leds y por cada uno
@@ -40,7 +42,7 @@ class TransmisorSerial extends Transmisor {
       // de transferencia. Por lo tanto, a una velocidad de 115.200 bits por 
       // segundo, la tasa de fps debería ser inferior a los 10,5 fps.
       // 
-      //    10.5 frames/seg. x 11.600 bits/frame = 115.500 bits/seg.
+      //    10 frames/seg. x 11.600 bits/frame = 116.000 bits/seg.
       //
       inicializado = true;
       println("PUERTO SERIAL CONECTADO");
@@ -50,9 +52,73 @@ class TransmisorSerial extends Transmisor {
     } 
   }
   
-  public void enviar(byte[] datos) {
+  private void enviar(byte[] datos) {
     if (inicializado) {
       puertoSerial.write(datos);
     }
   }
+  
+  public void enviar(byte[] paquete, String dirección) {
+    enviar(paquete);
+  }
+
+  
+  /**
+   * enviar
+   * Envia los valores de cada uno de los píxeles de la imagen (fragmentada)
+   * recibida como argumento. Por cada pixel de la imagen se envía un paquete
+   * de 5 bytes, según la siguiente especificación:
+   *   - BYTE #0: Coordenada X (entre 0 y 10)
+   *   - BYTE #1: Coordenada Y traspuesta (entre 0 y 24)
+   *   - BYTE #2: Valor numérico para el canal rojo del color del pixel
+   *   - BYTE #3: Valor numérico para el canal verde del color del pixel
+   *   - BYTE #4: Valor numérico para el canal azul del color del pixel
+   */
+  public void enviar(PImage imagen) {
+    int indice = 0;
+    for (int i = 0; i < imagen.width; i++) {
+      for (int j = imagen.height - 1; j >= 0; j--) {
+        indice = i + (j * imagen.width);
+        color colorPixel = imagen.pixels[indice];
+        int pixelX = i;
+        int pixelY = imagen.height - j - 1;
+        datos[0] = byte(pixelX);
+        datos[1] = byte(pixelY);
+        datos[2] = byte(red(colorPixel));
+        datos[3] = byte(green(colorPixel));
+        datos[4] = byte(blue(colorPixel));
+        enviar(datos);
+      }
+    }
+    enviarFinDeCuadro();
+  }  
+  
+  
+  /**
+   * enviarFinDeCuadro
+   * Envía un paquete de 5 bytes para indicar que ya fueron
+   * transmitidos todos los pixels de la imagen.
+   */
+  public void enviarFinDeCuadro() {
+    datos[0] = byte(CODIGO_FIN_DE_CUADRO);
+    datos[1] = byte(CODIGO_FIN_DE_CUADRO);
+    datos[2] = byte(0);
+    datos[3] = byte(0);
+    datos[4] = byte(0);
+    enviar(datos);
+  }
+  
+  /**
+   * enviarPausa
+   * Envía un paquete de 5 bytes para indicar que la transferencia
+   * por el puerto serial ha sido pausada.
+   */
+  public void enviarPausa() {
+    datos[0] = byte(CODIGO_PAUSA);
+    datos[1] = byte(CODIGO_PAUSA);
+    datos[2] = byte(0);
+    datos[3] = byte(0);
+    datos[4] = byte(0);
+    enviar(datos);
+  } 
 }

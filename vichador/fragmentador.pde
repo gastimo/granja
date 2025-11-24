@@ -94,7 +94,7 @@ class Fragmentador {
         color colorPixel = imagen.get((i * FRAGMENTO_ANCHO) + (FRAGMENTO_ANCHO/2), (j * FRAGMENTO_ALTO) + (FRAGMENTO_ALTO/2));
         boolean esFondo = saturation(colorPixel) < 13 || brightness(colorPixel) < 12;
         float colorTinte      = ajusteTinte == 0      ? hue(colorPixel) : esFondo ? (hue(colorPixel) + 172 + ajusteTinte/2) % 360 : (hue(colorPixel) + ajusteTinte) % 360;
-        float colorSaturacion = ajusteSaturacion == 0 ? constrain(saturation(colorPixel) * 2.4, 0, 100) : 
+        float colorSaturacion = ajusteSaturacion == 0 ? constrain(saturation(colorPixel) * 2, 0, 100) : 
                                                         esFondo ? constrain(ajusteSaturacion - 10, 0, 100) : constrain(ajusteSaturacion, 0, 100);
         float colorBrillo     = ajusteBrillo == 0     ? constrain(brightness(colorPixel) * 0.82, 0, 100) : 
                                                         esFondo ? constrain(brightness(colorPixel/10) + (ajusteBrillo*1.5), 0, 100) : constrain(brightness(colorPixel) + (ajusteBrillo*2), 0, 100);

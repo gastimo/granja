@@ -5,19 +5,32 @@
 // que van llegando, los píxeles son interpretados, ordenados y guardados 
 // en una estructura llamada "Corraleta", para luego ser transmitidos por
 // el puerto serial de comunicación al "Acorralador", quien finalmente los
-// acomoda (y los enciende) en la celda de la pantalla correspondiente. 
+// acomoda (y los enciende) en la celda correspondiente de la pantalla led.
 //
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-// Esta constante define la altura en píxeles de la 
-// imagen de video capturada por el "Vichador"
+
+// CONFIGURACIÓN DE LA CÁMARA
+// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+// Altura en píxeles de la cámara del "Vichador" que captura las imágenes
 final int CAMARA_ALTO = 480;
 
 
-// Definición de mensajes OSC a intercambiar con el "Vichador" 
-final String MENSAJE_OSC_FOTOGRAMA = "/granja/fotograma";
-final String MENSAJE_OSC_CIERRE    = "/granja/cierre";
-final String MENSAJE_OSC_PAUSA     = "/granja/pausa";
+// CONFIGURACIÓN DE PARÁMETROS PARA EL ENVÍO DE MENSAJES OSC
+// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+// Este módulo sólo se ocupa de recibir mensajes, por lo tanto alcanza
+// con definir únicamente el puerto donde está escuchando el "Arriero".
+final int PUERTO_LOCAL = 12011;
+
+
+// PARÁMETRO PARA LA PANTALLA DE "FRAGMENTACIÓN"
+// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+// Definición de los nombres de los eventos OSC (sus direcciones) que son 
+// recibidos desde el módulo "Vichador".
+//
+final String MENSAJE_OSC_FOTOGRAMA    = "/granja/fotograma";
+final String MENSAJE_OSC_CIERRE       = "/granja/cierre";
+final String MENSAJE_OSC_PAUSA        = "/granja/pausa";
 
 
 // Definición de transmisores/receptores para:
@@ -53,7 +66,7 @@ void setup() {
   background(0);
   
   // Inicialización de los transmisores
-  receptorDelVichador = new ReceptorOSC(this);  
+  receptorDelVichador = new ReceptorOSC(this, PUERTO_LOCAL);  
   transmisorDelAcorralador = new TransmisorSerial(this); 
   
   // Inicialización de los parámetros para la fragmentación
