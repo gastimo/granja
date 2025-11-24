@@ -61,7 +61,7 @@ void settings() {
  * iniciales y de configuración.
  */
 void setup() {
-  frameRate(60);
+  frameRate(30);
   colorMode(RGB, 255); 
   background(0);
   
@@ -86,7 +86,7 @@ void draw() {
     // La información de los píxeles es enviada al "Acorralador" a
     // una tasa de 10 fps porque el puerto serial no es capaz de
     // procesar todos los bytes de cada fotograma más rápidamente
-    if (frameCount % 5 == 0) {
+    if (frameCount % 3 == 0) {
       transmisorDelAcorralador.enviar(corraleta.imagen());
     }
 }
@@ -123,9 +123,9 @@ void oscEvent(OscMessage mensajeEntrante) {
   }
 
   // MENSAJE DE "FIN DE CUADRO" (indica que el fotograma fue enviado)
-  else if (mensajeEntrante.checkAddrPattern(MENSAJE_OSC_CIERRE)) {
+  /*else if (mensajeEntrante.checkAddrPattern(MENSAJE_OSC_CIERRE)) {
     if (mensajeEntrante.checkTypetag("b")) {
       transmisorDelAcorralador.enviarFinDeCuadro();
     }
-  }
+  }*/
 }
