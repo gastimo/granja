@@ -17,7 +17,7 @@ Cada pantalla tiene algún tipo de operación de empañamiento, ya sea mediante 
 
 - **PANTALLA #1 - DESGASTE/ESMERILADO**: El **enturbiador** es un pequeño motor con una lija adosada que al activarse gira y se desplaza por la superficie de la pantalla, rayando, desgastando y esmerilando el acrílico.
 - **PANTALLA #2 - SOBREIMPRESIÓN**: El **enturbiamiento** se produce de forma digital en la gráfica generativa hecha con Processing. Se muestran imágenes y contenidos superpuestos unos sobre los otros como un palimpsesto.
-- **PANTALLA #3 - EMPÑAMIENTO**: La pantalla es una especia de pecera con forma de pantalla, con agua en su interior. El **enturbiador** es una bomba de agua que succiona el líquido del interior y lo arroja sobre la pantalla.
+- **PANTALLA #3 - EMPAÑAMIENTO**: La pantalla es una especia de pecera con forma de pantalla, con agua en su interior. El **enturbiador** es una bomba de agua que succiona el líquido del interior y lo arroja sobre la pantalla.
 - **PANTALLA #4 - INTERFERENCIA**: El **enturbiamiento** se produce de forma digital en la gráfica generativa hecha con Processing. La intervención sobre las imágenes consiste en el *glitch*, el ruido, el error y la interferencia.
 - **PANTALLA #5 - DISTORSIÓN**: El **enturbiador** es un pequeño motor que retuerce y pellizca la superficie de la pantalla (que estará cubierta por un plástico más blando) para deformarla,  plegarla y distorsionarla.
 - **PANTALLA #6 - FRAGMENTACIÓN**: El **enturbiador** es la propia pantalla,  convertida en una matriz de pixel leds de 11 columnas por 25 filas (275 leds en total). Cada celda representa un fragmento de la imagen capturada.
@@ -30,4 +30,12 @@ La obra cuenta con cuatro **procesadores** responsables de la ejecución de los 
 - **PROCESADOR #2 - EL "VICHADOR"**: a través de una cámara dispuesta en el centro de la estructura, captura las imágenes del entorno y detecta los eventos del visitante que deban ser notificados al "Capataz". También lleva a cabo al fragmentación de la imagen de video capturada para mostrar en la "Pantalla #6".
 - **PROCESADOR #3 - EL "PRODUCTOR"**: responsable de producir la gráfica generativa para cada una de las pantallas de la instalación, excepto para la "Pantalla #6". Las intervenciones sobre la gráfica responden, también, a las órdenes impartidas por el "Capataz" de la granja (recibidas por OSC).
 - **PROCESADOR #4 - EL "ARRIERO"**: se ocupa de recibir la información de los píxeles de la imagen fragmentada por el "Vichador" y de alguna forma los "arrea" u ordena para acomodarlos en la matriz de leds (11x25). Los píxeles organizados son, luego, derivados al "Acorralador" para que los ubique en el lugar que le corresponde a cada uno de ellos (en su celda o "corral" de la pantalla-matriz).
+
+## Componentes Electrónicos y Microcontroladores
+Además de los equipos procesadores mencionados arriba, la cobra consta de varios otros componentes electrónicos individuales, como placas con circuitos electrónicos diseñados epecialmente para la obra y microcontroladores Arduino.
+- **COMPONENTE #1 - EL "DOMADOR" (Arduino)**: Es el microcontrolador principal del módulo del "Troll Control". Se ocupa de activar (a pedido del "Capataz") los **enturbiadores** de las pantallas #1, #3 y #5.
+- **COMPONENTE #2 - EL "ESPOLEADOR" (Arduino)**: Es el microcontrolador secundario del módulo del "Troll Control". Se encarga de iluminar el cable que conecta a cada una de las seis pantallas con la base de la instalación, cada vez que el "Domador" decide activarlas.
+- **COMPONENTE #3 - EL "ACORRALADOR" (Arduino)**: Es el responsable de recibir los píxeles arreados por el "Arriero" y encenderlos en la pantalla de leds, en la celda de la matriz que les corresponda.
+
+Adicionalmente, las pantallas con **enturbiadores** adosados, como el "desgastador" (pantalla #1), el empañador (pantalla #3) y el distorsionador (pantalla #5), tienen sus propias plaquetas con circuitos y componentes electrónicos diseñados para controlar los motores de los **enturbiadores**.
 
