@@ -45,7 +45,7 @@ final boolean ENVIAR_PIXELES_AL_ARRIERO = true;
 //
 final String IP_DEL_CAPATAZ   = "192.168.0.12";
 final String IP_DEL_VICHADOR  = "192.168.0.3";
-final String IP_DEL_ARRIERO   = "192.168.0.3";
+final String IP_DEL_ARRIERO   = "192.168.0.9";
 final int PUERTO_LOCAL        = 12000;
 final int PUERTO_DEL_CAPATAZ  = 12010;
 final int PUERTO_DEL_ARRIERO  = 12011;
@@ -71,6 +71,7 @@ final String MENSAJE_OSC_PAUSA        = "/granja/pausa";
 Camara camara;
 Fragmentador fragmentador;
 Interactor interactor;
+boolean inicializado = false;
 PImage imagenOriginal;
 PImage imagenFragmentada;
 float[][] flujoOptico;
@@ -98,7 +99,7 @@ void settings() {
  * iniciales y de configuración.
  */
 void setup() {
-  frameRate(30);
+  frameRate(60);
   colorMode(RGB, 255); 
   background(0);
   
@@ -129,18 +130,21 @@ void draw() {
     // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     camara.capturar();
     imagenOriginal = camara.video().get(CAMARA_ANCHO/2 - VISTA_ANCHO/2, 0, VISTA_ANCHO, VISTA_ALTO);
-    flujoOptico = interactor.flujoOptico(imagenOriginal, 30);
-    imagenFragmentada = fragmentador.procesar(imagenOriginal);
+    if (frameCount % 2 == 0 || !inicializado) {
+      flujoOptico = interactor.flujoOptico(imagenOriginal, 30);
+      imagenFragmentada = fragmentador.procesar(imagenOriginal);
+      inicializado = true;
+    }
 
 
     // 2. TRANSMISIONES (DE LA IMAGEN FRAGMENTADA Y DE LOS EVENTOS AL CAPATAZ)
     // Una vez capturada la imagen, interpretada y fragmentada, se envía la información
     // tanto al "Capataz" para que se ocupe de activar las pantallas, como a la pantalla
     // de leds. Esto último puede realizarse con o sin la intervención del "Arriero".
-    if (frameCount % (ENVIAR_PIXELES_AL_ARRIERO ? 1 : 2) == 0) {
+    if (frameCount % (ENVIAR_PIXELES_AL_ARRIERO ? 1 : 5) == 0) {
       transmisorDePixeles.enviar(imagenFragmentada);
     }
-    transmisorDeEventos.enviar(flujoOptico);   // Notificar al "Capataz"
+    transmisorDeEventos.enviar(flujoOptico); // Notificar al "Capataz"
     
     
     // 3. PREVISUALIZACIÓN DE MONITOREO

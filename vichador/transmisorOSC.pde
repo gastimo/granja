@@ -81,7 +81,6 @@ class TransmisorOSC implements Transmisor {
         paquete[contador++] = byte(blue(colorPixel));
       }
     }
-    imagen.updatePixels();
     enviar(paquete, MENSAJE_OSC_FOTOGRAMA);
   }
   
