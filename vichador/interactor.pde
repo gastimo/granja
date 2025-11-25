@@ -91,8 +91,8 @@ class Matriz {
     float[][] casillas = new float[columnas][filas];
     for ( int i=0; i<columnas; i++ ) {
       for ( int j=0; j<filas; j++ ) {
-        float valor = map( cuanto[i][j], 0, techo, 0, 255 );
-        casillas[i][j] = constrain( valor, 0, 255 );
+        float valor = map( cuanto[i][j], 0, techo, 0, 1.5 );
+        casillas[i][j] = constrain( valor, 0, 1 );
       }
     }
     return casillas;

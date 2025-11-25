@@ -23,7 +23,7 @@
 // monitoreo del funcionamiento de la cámara y las rutinas de análisis.
 // Cuando la obra esté en funcionamiento, el parámetro debería estar en false.
 //
-final boolean MONITOREO_ACTIVADO = true;
+boolean MONITOREO_ACTIVADO = true;
 
 
 // PARÁMETRO PARA LA PANTALLA DE "FRAGMENTACIÓN"
@@ -35,7 +35,7 @@ final boolean MONITOREO_ACTIVADO = true;
 //  - FALSE: el "Vichador" envía los pixeles a la pantalla (serial)
 //  - TRUE : el "Vichador" envía los píxeles al "Arriero" (OSC)
 // 
-final boolean ENVIAR_PIXELES_AL_ARRIERO = true;
+boolean ENVIAR_PIXELES_AL_ARRIERO = true;
 
 
 // CONFIGURACIÓN DE PARÁMETROS PARA EL ENVÍO DE MENSAJES OSC
@@ -43,13 +43,24 @@ final boolean ENVIAR_PIXELES_AL_ARRIERO = true;
 // Configuración de las direcciones IPs y de los puertos para transmitir
 // mensajes vía protocolo OSC
 //
-final String IP_DEL_CAPATAZ   = "192.168.0.12";
-final String IP_DEL_VICHADOR  = "192.168.0.3";
-final String IP_DEL_ARRIERO   = "192.168.0.9";
-final int PUERTO_LOCAL        = 12000;
-final int PUERTO_DEL_CAPATAZ  = 12010;
-final int PUERTO_DEL_ARRIERO  = 12011;
+final String IP_DEL_CAPATAZ    = "192.168.0.211";
+final String IP_DEL_VICHADOR   = "192.168.0.3";
+final String IP_DEL_ARRIERO    = "192.168.0.3";
+final String IP_DEL_PRODUCTOR  = "192.168.0.3";
+final int PUERTO_LOCAL         = 12000;
+final int PUERTO_DEL_CAPATAZ   = 9000;
+final int PUERTO_DEL_ARRIERO   = 12011;
+final int PUERTO_DEL_PRODUCTOR = 12012;
 
+
+
+// PARÁMETROS PARA EL CÁLCULO DEL FLUJO OPTICO
+// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+// Se definen los valores para calcular el "flujo óptico" en la imagen
+// de video capturada.
+final float FLUJO_OPTICO_TECHO    = 30;
+final int   FLUJO_OPTICO_COLUMNAS = 5;
+final int   FLUJO_OPTICO_FILAS    = 1;
 
 
 // PARÁMETRO PARA LA PANTALLA DE "FRAGMENTACIÓN"
@@ -73,12 +84,12 @@ Fragmentador fragmentador;
 Interactor interactor;
 boolean inicializado = false;
 PImage imagenOriginal;
+PImage imagenRecortada;
 PImage imagenFragmentada;
 float[][] flujoOptico;
 Transmisor transmisorDePixeles;
+TransmisorOSC transmisorDeFragmentos;
 TransmisorOSC transmisorDeEventos;
-
-
 
 
 /**
@@ -89,7 +100,7 @@ TransmisorOSC transmisorDeEventos;
 void settings() {
   // La ventana de processing muestra una previsualización de 
   // las imágenes capturadas por la cámara y su fragmentación
-  size(MONITOREO_ACTIVADO ? VISTA_ANCHO * 3 : 20, MONITOREO_ACTIVADO ? CAMARA_ALTO : 20);
+  size(MONITOREO_ACTIVADO ? VISTA_ANCHO * 2 + CAMARA_ANCHO : 20, MONITOREO_ACTIVADO ? CAMARA_ALTO : 20);
 }
 
 
@@ -105,14 +116,15 @@ void setup() {
   
   // Inicialización de los objetos para captura y análisis del video
   camara = new Camara(this);
-  interactor = new Interactor(this, VISTA_ANCHO, VISTA_ALTO, 4, 8);
+  interactor = new Interactor(this, CAMARA_ANCHO, CAMARA_ALTO, FLUJO_OPTICO_COLUMNAS, FLUJO_OPTICO_FILAS);
   
   // Inicialización del "Fragmentador" (para la pantalla de leds)
   fragmentador = new Fragmentador();
 
   // Inicialización de los transmisores (OSC y serial)
-  transmisorDeEventos = new TransmisorOSC(this, PUERTO_LOCAL, IP_DEL_CAPATAZ, PUERTO_DEL_CAPATAZ);  
-  transmisorDePixeles = ENVIAR_PIXELES_AL_ARRIERO ? new TransmisorOSC(this, PUERTO_LOCAL, IP_DEL_ARRIERO, PUERTO_DEL_ARRIERO) : new TransmisorSerial(this);
+  transmisorDeEventos = new TransmisorOSC(this, PUERTO_LOCAL, IP_DEL_CAPATAZ, PUERTO_DEL_CAPATAZ); 
+  transmisorDeFragmentos = new TransmisorOSC(this, PUERTO_LOCAL, IP_DEL_PRODUCTOR, PUERTO_DEL_PRODUCTOR);  
+  transmisorDePixeles = ENVIAR_PIXELES_AL_ARRIERO ? transmisorDeFragmentos.replicar(IP_DEL_ARRIERO, PUERTO_DEL_ARRIERO) : new TransmisorSerial(this);
 }
 
 
@@ -129,10 +141,11 @@ void draw() {
     // y finalmente se fragmenta la imagen a transmitir a la pantalla de leds.
     // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     camara.capturar();
-    imagenOriginal = camara.video().get(CAMARA_ANCHO/2 - VISTA_ANCHO/2, 0, VISTA_ANCHO, VISTA_ALTO);
+    imagenOriginal  = camara.video().get(0, 0, CAMARA_ANCHO, CAMARA_ALTO);
+    imagenRecortada = imagenOriginal.get(CAMARA_ANCHO/2 - VISTA_ANCHO/2, 0, VISTA_ANCHO, VISTA_ALTO);
     if (frameCount % 2 == 0 || !inicializado) {
-      flujoOptico = interactor.flujoOptico(imagenOriginal, 30);
-      imagenFragmentada = fragmentador.procesar(imagenOriginal);
+      flujoOptico = interactor.flujoOptico(imagenOriginal, FLUJO_OPTICO_TECHO);
+      imagenFragmentada = fragmentador.procesar(imagenRecortada);
       inicializado = true;
     }
 
@@ -141,10 +154,23 @@ void draw() {
     // Una vez capturada la imagen, interpretada y fragmentada, se envía la información
     // tanto al "Capataz" para que se ocupe de activar las pantallas, como a la pantalla
     // de leds. Esto último puede realizarse con o sin la intervención del "Arriero".
-    if (frameCount % (ENVIAR_PIXELES_AL_ARRIERO ? 1 : 5) == 0) {
-      transmisorDePixeles.enviar(imagenFragmentada);
+    if (inicializado) {
+      
+      // ENVIAR MENSAJES (SERIAL) AL "ACORRALADOR"
+      if (!ENVIAR_PIXELES_AL_ARRIERO && frameCount % 5 == 0) {
+        transmisorDePixeles.enviar(imagenFragmentada);
+      }
+      
+      // ENVÍO DE MENSAJES AL "PRODUCTOR" Y AL "ARRIERO"
+      if (frameCount % 1 == 0) {
+        transmisorDeFragmentos.enviar(imagenFragmentada);
+      }
+      
+      // ENVÍO DE MENSAJES AL "CAPATAZ"
+      if (frameCount % 2 == 0) {
+        transmisorDeEventos.enviar(flujoOptico, MENSAJE_OSC_FLUJO_OPTICO);
+      }
     }
-    transmisorDeEventos.enviar(flujoOptico); // Notificar al "Capataz"
     
     
     // 3. PREVISUALIZACIÓN DE MONITOREO
@@ -155,9 +181,9 @@ void draw() {
     // del "Productor" de la granja que trabaja a pedido del "Capataz".
     // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
     if (MONITOREO_ACTIVADO) {
-      image(imagenOriginal, 0, 0, VISTA_ANCHO, VISTA_ALTO);
+      image(imagenRecortada, 0, 0, VISTA_ANCHO, VISTA_ALTO);
       fragmentador.mostrar(imagenFragmentada, VISTA_ANCHO, 0);
-      interactor.mostrar(VISTA_ANCHO * 2, 0, 30);
+      interactor.mostrar(VISTA_ANCHO * 2, 0, FLUJO_OPTICO_TECHO);
     }
   }
 }

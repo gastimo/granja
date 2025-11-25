@@ -16,9 +16,11 @@ boolean oscInicializado = false;
 
 class TransmisorOSC implements Transmisor {  
   NetAddress direccionRemota;
+  NetAddress direccionAdicional;
   OscMessage mensajeOSC;
   byte[] datos = {0x00, 0x00, 0x00, 0x00, 0x00};
   byte paquete[] = new byte[825];
+  boolean replicador = false;
 
   
   public TransmisorOSC(PApplet contenedor) {
@@ -40,16 +42,38 @@ class TransmisorOSC implements Transmisor {
     direccionRemota = new NetAddress(ipDestino, puertoDestino);
   }
   
+  public TransmisorOSC replicar(String ipDestino, int puertoDestino) {
+    direccionAdicional = new NetAddress(ipDestino, puertoDestino);
+    replicador = true;
+    return this;
+  }
+  
   
   public void enviar(byte[] paquete, String dirección) {
     if (oscInicializado) {
       mensajeOSC = new OscMessage(dirección);
       mensajeOSC.add(paquete);
       oscP5.send(mensajeOSC, direccionRemota);
+      if (replicador) {
+        oscP5.send(mensajeOSC, direccionAdicional);
+      }
     }
   }  
   
-  public void enviar(float[][] matriz) {
+  public void enviar(float[][] matriz, String direccion) {
+    OscMessage mensaje;
+    if (oscInicializado) {
+      mensaje = new OscMessage(direccion);
+      for (int i = 0; i < matriz.length; i++) {
+        for (int j = 0; j < matriz[i].length; j++) {
+          mensaje.add(matriz[i][j]);
+        }
+      }
+      oscP5.send(mensaje, direccionRemota);
+      if (replicador) {
+        oscP5.send(mensajeOSC, direccionAdicional);
+      }
+    }
   }
 
         
