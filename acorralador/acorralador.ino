@@ -37,26 +37,21 @@ void loop() {
       posX = int(datos[0]);
       posY = int(datos[1]);
       if (posX < MAX_POSICION && posY < MAX_POSICION) {
-        //pixelesRecibidos++;
         valorR = int(datos[2]) * maxBrilloR / MAX_BRILLO;
         valorG = int(datos[3]) * maxBrilloG / MAX_BRILLO;
         valorB = int(datos[4]) * maxBrilloB / MAX_BRILLO;
         indice = (posX * FRAGMENTADOR_ALTO) + posY;
         strip.setPixelColor(indice, strip.Color(valorR, valorG, valorB));
       }
-      //else if (posX == NULL_POSICION && posY == NULL_POSICION) {
-      //  strip.fill(strip.Color(0,0,0)); 
-      //  strip.show();
-      //  break;
-      //}
+      else if (posX == NULL_POSICION && posY == NULL_POSICION) {
+        strip.fill(strip.Color(0,0,0)); 
+        strip.show();
+        break;
+      }
       else {
         strip.show();
         break;
       }
     }
-    //if (pixelesRecibidos >= 25) {
-    //  pixelesRecibidos = 0;
-    //  strip.show();
-    //}
   }
 }

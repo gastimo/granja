@@ -157,7 +157,7 @@ void draw() {
     if (inicializado) {
       
       // ENVIAR MENSAJES (SERIAL) AL "ACORRALADOR"
-      if (!ENVIAR_PIXELES_AL_ARRIERO && frameCount % 5 == 0) {
+      if (!ENVIAR_PIXELES_AL_ARRIERO && frameCount % 6 == 0) {
         transmisorDePixeles.enviar(imagenFragmentada);
       }
       
