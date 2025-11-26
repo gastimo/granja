@@ -4,7 +4,7 @@
 // gráfica a ser proyectada en las pantallas. 
 // Si bien este componente está produciendo la gráfica generativa de
 // manera continua, escucha en simultáneo los mensajes del "Capataz"
-// para realizar enturbiamientos en la pantalla que debe ser activada.
+// para realizar enturbiamientos en la pantalla que deba ser activada.
 //
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
@@ -12,8 +12,8 @@
 // CONFIGURACIÓN DE LAS DIMENSIONES DE LA SALIDA DEL VIDEO
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 // La gráfica para las 5 pantallas se genera en formato Full HD
-final int VIDEO_ANCHO = 1920;
-final int VIDEO_ALTO  = 1080;
+final int VIDEO_ANCHO = 1280;
+final int VIDEO_ALTO  = 720;
 
 
 // CONFIGURACIÓN DE LA CANTIDAD DE PANTALLAS A PROYECTAR
@@ -52,9 +52,11 @@ final String MENSAJE_OSC_FOTOGRAMA  = "/granja/fotograma";
 // Definición de las pantallas
 Pantalla pantalla01, pantalla02, pantalla03, pantalla04, pantalla05;
 
-// Definición del receptor
+// Definición del de mensajes OSC
 ReceptorOSC receptor;
 
+// Definición de la difusora para transmitir el video
+Difusora difusora;
 
 // Variables para el arreo de píxeles
 Corraleta corraleta;
@@ -67,7 +69,8 @@ byte paquete[];
  * definir las dimensiones de la ventana principal mediante variables.
  */
 void settings() {
-  size(VIDEO_ANCHO, VIDEO_ALTO);
+  //size(VIDEO_ANCHO, VIDEO_ALTO, P3D);
+  size(640, 480, P3D);
 }
 
 
@@ -77,10 +80,11 @@ void settings() {
  * iniciales y de configuración.
  */
 void setup() {
+  textureMode(NORMAL);
   frameRate(24);
   colorMode(RGB, 255);
   background(0);
-  
+    
   // Inicialización de los receptores
   receptor = new ReceptorOSC(this, PUERTO_LOCAL); 
   
@@ -93,6 +97,10 @@ void setup() {
   pantalla03 = new PantallaFragmentada(PANTALLA_ANCHO, PANTALLA_ALTO, corraleta);
   pantalla04 = new Pantalla(PANTALLA_ANCHO, PANTALLA_ALTO);
   pantalla05 = new Pantalla(PANTALLA_ANCHO, PANTALLA_ALTO);
+  
+  // Creación de la "Difusora" encargada de la transmisión del
+  // video generado por el "Productor" a través de Spout.
+  difusora = new Difusora(this);
 }
 
 
@@ -108,6 +116,8 @@ void draw() {
   pantalla03.mostrar(PANTALLA_BORDE * 3 + PANTALLA_ANCHO * 2, bordeSuperior);
   pantalla04.mostrar(PANTALLA_BORDE * 4 + PANTALLA_ANCHO * 3, bordeSuperior);
   pantalla05.mostrar(PANTALLA_BORDE * 5 + PANTALLA_ANCHO * 4, bordeSuperior);
+  
+  difusora.transmitir();
 }
 
 

@@ -9,6 +9,7 @@
 class Pantalla {
   
   int ancho, alto;
+  PGraphics contenido;
   
   public Pantalla() {
     this(PANTALLA_ANCHO, PANTALLA_ALTO);
@@ -25,5 +26,9 @@ class Pantalla {
     noStroke();
     rect(x, y, ancho, alto);
     pop();
+  }
+  
+  public void activar(float valor) {
+    println(">>> PANTALLA ACTIVADA");
   }
 }
