@@ -16,6 +16,13 @@ final int VIDEO_ANCHO = 1280;
 final int VIDEO_ALTO  = 720;
 
 
+// CONFIGURACIÓN DE PARÁMETROS PARA EL ENVÍO DE MENSAJES OSC
+// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+// Este módulo sólo se ocupa de recibir mensajes, por lo tanto alcanza
+// con definir únicamente el puerto donde está escuchando.
+final int PUERTO_LOCAL = 12012;
+
+
 // CONFIGURACIÓN DE LA CANTIDAD DE PANTALLAS A PROYECTAR
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 // El contenido de cada una de las 5 pantallas es renderizado en la misma ventana
@@ -32,13 +39,6 @@ final int PROPORCION_ALTO  = 25;
 final int PANTALLA_BORDE = 4;
 final int PANTALLA_ANCHO = (VIDEO_ANCHO - (PANTALLA_BORDE * (CANTIDAD_PANTALLAS + 1))) / CANTIDAD_PANTALLAS;
 final int PANTALLA_ALTO  = PANTALLA_ANCHO * PROPORCION_ALTO / PROPORCION_ANCHO;
-
-
-// CONFIGURACIÓN DE PARÁMETROS PARA EL ENVÍO DE MENSAJES OSC
-// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-// Este módulo sólo se ocupa de recibir mensajes, por lo tanto alcanza
-// con definir únicamente el puerto donde está escuchando.
-final int PUERTO_LOCAL = 12012;
 
 
 // CONFIGURACIÓN DE LOS MENSAJES OSC
@@ -63,14 +63,18 @@ Corraleta corraleta;
 byte paquete[];
 
 
+void preload() {
+
+}
+
+
 /**
  * settings
  * Función estándar de Processing, usada en este caso para poder
  * definir las dimensiones de la ventana principal mediante variables.
  */
 void settings() {
-  //size(VIDEO_ANCHO, VIDEO_ALTO, P3D);
-  size(640, 480, P3D);
+  size(VIDEO_ANCHO, VIDEO_ALTO, P3D);
 }
 
 
@@ -80,23 +84,23 @@ void settings() {
  * iniciales y de configuración.
  */
 void setup() {
+  frameRate(30);
   textureMode(NORMAL);
-  frameRate(24);
   colorMode(RGB, 255);
   background(0);
-    
-  // Inicialización de los receptores
-  receptor = new ReceptorOSC(this, PUERTO_LOCAL); 
-  
+
   // Inicialización de los parámetros para la fragmentación
   corraleta = new Corraleta();
   
   // Creación de las pantallas
-  pantalla01 = new Pantalla(PANTALLA_ANCHO, PANTALLA_ALTO);
-  pantalla02 = new Pantalla(PANTALLA_ANCHO, PANTALLA_ALTO);
-  pantalla03 = new PantallaFragmentada(PANTALLA_ANCHO, PANTALLA_ALTO, corraleta);
-  pantalla04 = new Pantalla(PANTALLA_ANCHO, PANTALLA_ALTO);
-  pantalla05 = new Pantalla(PANTALLA_ANCHO, PANTALLA_ALTO);
+  pantalla01 = new Pantalla(this, 1, PANTALLA_ANCHO, PANTALLA_ALTO);
+  pantalla02 = new Pantalla(this, 2, PANTALLA_ANCHO, PANTALLA_ALTO);
+  pantalla03 = new PantallaFragmentada(this, 3, PANTALLA_ANCHO, PANTALLA_ALTO, corraleta);
+  pantalla04 = new Pantalla(this, 4, PANTALLA_ANCHO, PANTALLA_ALTO);
+  pantalla05 = new Pantalla(this, 5, PANTALLA_ANCHO, PANTALLA_ALTO);
+  
+  // Inicialización de los receptores
+  receptor = new ReceptorOSC(this, PUERTO_LOCAL); 
   
   // Creación de la "Difusora" encargada de la transmisión del
   // video generado por el "Productor" a través de Spout.
@@ -157,6 +161,18 @@ void oscEvent(OscMessage mensajeEntrante) {
   else if (mensajeEntrante.checkAddrPattern(MENSAJE_OSC_ACTIVACION)) {
     if (mensajeEntrante.checkTypetag("i")) {
       int pantalla = mensajeEntrante.get(0).intValue();
+      if (pantalla == 1)
+        pantalla01.activar(0);
+      else if (pantalla == 2)
+        pantalla02.activar(0);
+      else if (pantalla == 3)
+        pantalla03.activar(0);
+      else if (pantalla == 4)
+        pantalla04.activar(0);
+      else if (pantalla == 5)
+        pantalla05.activar(0);
+ 
+
       // Activar el entubiamiento de la pantalla
       println("Activación de PANTALLA #" + pantalla);
     }

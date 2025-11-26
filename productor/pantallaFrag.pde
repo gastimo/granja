@@ -9,8 +9,8 @@ class PantallaFragmentada extends Pantalla {
   
     Corraleta imagenFragmentada;
     
-    public PantallaFragmentada(int pantallaAncho, int pantallaAlto, Corraleta corraleta) {
-      super(pantallaAncho, pantallaAlto);
+    public PantallaFragmentada(PApplet contenedor, int id, int pantallaAncho, int pantallaAlto, Corraleta corraleta) {
+      super(contenedor, id, pantallaAncho, pantallaAlto);
       imagenFragmentada = corraleta;
   }
   

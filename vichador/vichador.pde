@@ -35,7 +35,7 @@ boolean MONITOREO_ACTIVADO = true;
 //  - FALSE: el "Vichador" envía los pixeles a la pantalla (serial)
 //  - TRUE : el "Vichador" envía los píxeles al "Arriero" (OSC)
 // 
-boolean ENVIAR_PIXELES_AL_ARRIERO = true;
+boolean ENVIAR_PIXELES_AL_ARRIERO = false;
 
 
 // CONFIGURACIÓN DE PARÁMETROS PARA EL ENVÍO DE MENSAJES OSC
@@ -44,9 +44,9 @@ boolean ENVIAR_PIXELES_AL_ARRIERO = true;
 // mensajes vía protocolo OSC
 //
 final String IP_DEL_CAPATAZ    = "192.168.0.211";
-final String IP_DEL_VICHADOR   = "192.168.0.3";
-final String IP_DEL_ARRIERO    = "192.168.0.3";
-final String IP_DEL_PRODUCTOR  = "192.168.0.3";
+final String IP_DEL_VICHADOR   = "192.168.0.5";
+final String IP_DEL_ARRIERO    = "192.168.0.5";
+final String IP_DEL_PRODUCTOR  = "192.168.0.5";
 final int PUERTO_LOCAL         = 12000;
 final int PUERTO_DEL_CAPATAZ   = 9000;
 final int PUERTO_DEL_ARRIERO   = 12011;
