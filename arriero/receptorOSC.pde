@@ -12,14 +12,10 @@ import netP5.*;
 
 class ReceptorOSC {
   OscP5 oscP5;
-  NetAddress direccionLocal;
   boolean inicializado = false;
   
   public ReceptorOSC(PApplet contenedor, int puertoLocal) {
-    direccionLocal = new NetAddress("192.168.0.198", puertoLocal);
-    OscProperties prop = new OscProperties();
-    prop.setRemoteAddress(direccionLocal);
-    oscP5 = new OscP5(contenedor, prop);
+    oscP5 = new OscP5(contenedor, puertoLocal);
     inicializado = true;
   }
 }
