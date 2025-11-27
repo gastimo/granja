@@ -9,6 +9,13 @@
 //
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
+// PARAMETRO PARA MONITOREO DE LAS IMAGENES RECIBIDAS
+// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+// Indica si además de comunicarse con el puerto serial, el "Arriero" debe
+// mostrar la imagen recibida en la ventana de Processing.
+//
+boolean MONITOREO_ACTIVADO = true;
+
 
 // CONFIGURACIÓN DE LA CÁMARA
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
@@ -80,7 +87,7 @@ void setup() {
  * la ventana principal.
  */
 void draw() {
-    if (frameCount % 2 == 0) {
+    if (MONITOREO_ACTIVADO && frameCount % 2 == 0) {
       corraleta.mostrar(0, 0);
     }
     // La información de los píxeles es enviada al "Acorralador" a
