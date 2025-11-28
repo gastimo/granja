@@ -13,8 +13,8 @@
 //
 // CONFIGURACIÓN LOCAL
 final String IP_DEL_CAPATAZ    = "192.168.0.5";
-final String IP_DEL_VICHADOR   = "192.168.0.5";
-final String IP_DEL_ARRIERO    = "192.168.0.9";
+final String IP_DEL_VICHADOR   = "192.168.0.9";
+final String IP_DEL_ARRIERO    = "192.168.0.5";
 final String IP_DEL_PRODUCTOR  = "192.168.0.5";
 final int PUERTO_LOCAL         = 9000;
 final int PUERTO_DEL_VICHADOr  = 12000;
@@ -56,7 +56,7 @@ void setup() {
  */
 void draw() {
     if (frameCount % 45 == 0) {
-      notificador.enviar(1, 0, MENSAJE_OSC_ACTIVACION);
+      notificador.enviar(pantallaActivada, 0, MENSAJE_OSC_ACTIVACION);
       pantallaActivada = pantallaActivada == 6 ? 1 : pantallaActivada+1;
     }
 }
