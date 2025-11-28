@@ -14,7 +14,7 @@
 // Indica si además de comunicarse con el puerto serial, el "Arriero" debe
 // mostrar la imagen recibida en la ventana de Processing.
 //
-boolean MONITOREO_ACTIVADO = true;
+boolean MONITOREO_ACTIVADO = false;
 
 
 // CONFIGURACIÓN DE LA CÁMARA
