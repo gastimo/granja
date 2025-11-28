@@ -21,7 +21,7 @@ final int VIDEO_ALTO  = 720;
 // Este módulo recibe mensajes del "Capataz" y reenvía al "Vichador"
 // CONFIGURACIÓN LOCAL
 final String IP_DEL_CAPATAZ    = "192.168.0.5";
-final String IP_DEL_VICHADOR   = "192.168.0.5";
+final String IP_DEL_VICHADOR   = "192.168.0.9";
 final String IP_DEL_PRODUCTOR  = "192.168.0.5";
 final int PUERTO_LOCAL         = 12012;
 final int PUERTO_DEL_CAPATAZ   = 9000;
@@ -32,6 +32,12 @@ final int PUERTO_DEL_VICHADOR  = 12000;
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 // El contenido de cada una de las 5 pantallas es renderizado en la misma ventana
 final int CANTIDAD_PANTALLAS = 5;
+
+
+// CONFIGURACIÓN DE PARÁMETROS PARA LA ACTIVACIÓN DE PANTALLAS
+// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+// La gráfica para las 5 pantallas se genera en formato Full HD
+final int DURACION_ACTIVACION = 2600;
 
 
 // DEFINICIÓN DE LAS PROPORCIONES (ASPECT RATIO) DE LAS PANTALLAS
@@ -100,7 +106,7 @@ void setup() {
   background(0);
 
   // Inicialización de los parámetros para la fragmentación
-  corraleta = new Corraleta();
+  corraleta = new Corraleta(createGraphics(PANTALLA_ANCHO, PANTALLA_ALTO, P3D));
   
   // Inicialización del receptor y el emisor
   receptor = new TransmisorOSC(this, PUERTO_LOCAL, null, 0); 
@@ -108,11 +114,11 @@ void setup() {
   
   
   // Creación de las pantallas
-  pantalla01 = new Pantalla     (this, 1, PANTALLA_ANCHO, PANTALLA_ALTO);
-  pantalla02 = new Pantalla     (this, 2, PANTALLA_ANCHO, PANTALLA_ALTO);
+  pantalla01 = new PantallaBASE (this, 1, PANTALLA_ANCHO, PANTALLA_ALTO, corraleta);
+  pantalla02 = new PantallaBASE (this, 2, PANTALLA_ANCHO, PANTALLA_ALTO, corraleta);
   pantalla03 = new PantallaFRAG (this, 3, PANTALLA_ANCHO, PANTALLA_ALTO, corraleta);
-  pantalla04 = new Pantalla     (this, 4, PANTALLA_ANCHO, PANTALLA_ALTO);
-  pantalla05 = new Pantalla     (this, 5, PANTALLA_ANCHO, PANTALLA_ALTO);
+  pantalla04 = new PantallaBASE (this, 4, PANTALLA_ANCHO, PANTALLA_ALTO, corraleta);
+  pantalla05 = new PantallaBASE (this, 5, PANTALLA_ANCHO, PANTALLA_ALTO, corraleta);
   pantalla06 = new PantallaLED  (this, 6, PANTALLA_ANCHO, PANTALLA_ALTO, emisor);
   
   // Creación de la "Difusora" encargada de la transmisión del
@@ -127,8 +133,10 @@ void setup() {
  * la ventana principal.
  */
 void draw() {
+  background(0);
   
   // Procesar el contenido de cada pantalla
+  corraleta.actualizarImagen();
   pantalla01.procesar();
   pantalla02.procesar();
   pantalla03.procesar();

@@ -15,12 +15,19 @@ final int FRAGMENTO_ALTO  = PANTALLA_ALTO  / FRAGMENTADOR_ALTO;
 
 
 class Corraleta {
-  PImage imagen;
+  PImage imagen;        // Imagen fragmentada en el tamaño de la matriz de leds
+  PImage imagenSalida;  // Imagen fragmentada en el tamaño a ser mostrada
+  PGraphics salida;
   
   public Corraleta() {  
     imagen = createImage(FRAGMENTADOR_ANCHO, FRAGMENTADOR_ALTO, RGB);
     imagen.loadPixels();
   }
+  
+  public Corraleta(PGraphics formatoSalida) {
+    this();
+    salida = formatoSalida;
+  }  
   
   public PImage imagen() {
     return imagen;
@@ -65,4 +72,66 @@ class Corraleta {
     }
   }
   
+  
+  /**
+   * mostrarImagen
+   * Dibuja la imagen fragmentada en la ventana principal a partir
+   * de las coordenadas x e y recibidas como argumento.
+   */
+  void mostrarImagen(int posX, int posY, float valor, PGraphics grafica) {
+    int indice = 0;
+    grafica.beginDraw();
+    grafica.background(0);
+    for (int j = 0; j < FRAGMENTADOR_ALTO; j++) {
+      for (int i = 0; i < FRAGMENTADOR_ANCHO; i++) {
+        grafica.push();
+        grafica.fill(imagen.pixels[indice]);
+        grafica.strokeWeight(map(valor, 0, 1, 4, 1));
+        grafica.stroke(0);
+        int x = posX + (i * FRAGMENTO_ANCHO);
+        int y = posY + (j * FRAGMENTO_ALTO);
+        int anchura = int(FRAGMENTO_ANCHO * map(valor, 0, 1, 1, 6));
+        int altura  = int(FRAGMENTO_ALTO * map(valor, 0, 1, 1, 6));
+        grafica.translate(x + (FRAGMENTO_ANCHO/2), y + (FRAGMENTO_ALTO/2));
+        grafica.rotate(map(valor, 0, 1, 0, 2.5*PI));
+        grafica.rect(-FRAGMENTO_ANCHO/2 + random(0, 2), -FRAGMENTO_ALTO/2 + random(0, 4), anchura, altura);
+        indice++;
+        grafica.pop();
+      }
+    }
+    grafica.endDraw();
+  } 
+  
+  
+  /**
+   * actualizarImagen
+   */
+  void actualizarImagen() {
+    int indice = 0;
+    int posX = 0;
+    int posY = 0;
+    salida.beginDraw();
+    salida.background(0);
+    for (int j = 0; j < FRAGMENTADOR_ALTO; j++) {
+      for (int i = 0; i < FRAGMENTADOR_ANCHO; i++) {
+        salida.push();
+        salida.fill(imagen.pixels[indice]);
+        salida.strokeWeight(1);
+        salida.stroke(0);
+        salida.rect(posX + (i * FRAGMENTO_ANCHO), posY + (j * FRAGMENTO_ALTO), FRAGMENTO_ANCHO, FRAGMENTO_ALTO);
+        indice++;
+        salida.pop();
+      }
+    }
+    salida.endDraw();
+    imagenSalida = salida.get();
+  } 
+  
+  
+  /**
+   * obtenerImagen
+   */
+  PImage obtenerImagen() {
+    return imagenSalida;
+  }
 }

@@ -6,12 +6,6 @@
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 
-// CONFIGURACIÓN DE PARÁMETROS PARA ACTIVACIÓN DE PANTALLAS
-// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-// La gráfica para las 5 pantallas se genera en formato Full HD
-final int DURACION_ACTIVACION = 500;
-
-
 class Pantalla {
   int identificador;
   int ancho, alto;
@@ -47,18 +41,18 @@ class Pantalla {
   }
   
   public boolean estaActiva() {
-      return millis() <= finActivacion;
+      return millis() <= finActivacion && inicioActivacion > 0;
   }
   
   public void activar(float valor) {
     inicioActivacion = millis();
     finActivacion = inicioActivacion + DURACION_ACTIVACION;
-    println(">>> PANTALLA " + identificador + " ACTIVADA");
+    //println(">>> PANTALLA " + identificador + " ACTIVADA");
   }
   
   public void desactivar() {
     inicioActivacion  = 0;
     finActivacion = 0;
-    println(">>> PANTALLA " + identificador + " DESACTIVADA");
+    //println(">>> PANTALLA " + identificador + " DESACTIVADA");
   }
 }

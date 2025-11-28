@@ -1,6 +1,6 @@
 // 
 // PANTALLA "LED"
-// Pantalla de Leds
+// Pantalla de LEDS
 //
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 

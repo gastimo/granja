@@ -122,7 +122,7 @@ void settings() {
  * iniciales y de configuración.
  */
 void setup() {
-  frameRate(60);
+  frameRate(30);
   colorMode(RGB, 255); 
   background(0);
   
@@ -155,7 +155,7 @@ void draw() {
     camara.capturar();
     imagenOriginal  = camara.video().get(0, 0, CAMARA_ANCHO, CAMARA_ALTO);
     imagenRecortada = imagenOriginal.get(CAMARA_ANCHO/2 - VISTA_ANCHO/2, 0, VISTA_ANCHO, VISTA_ALTO);
-    if (frameCount % 2 == 0 || !inicializado) {
+    if (frameCount % 1 == 0 || !inicializado) {
       flujoOptico = interactor.flujoOptico(imagenOriginal, FLUJO_OPTICO_TECHO);
       imagenFragmentada = fragmentador.procesar(imagenRecortada);
       inicializado = true;
@@ -169,17 +169,17 @@ void draw() {
     if (inicializado) {
       
       // ENVIAR MENSAJES (SERIAL) AL "ACORRALADOR"
-      if (!ENVIAR_PIXELES_AL_ARRIERO && frameCount % 6 == 0) {
+      if (!ENVIAR_PIXELES_AL_ARRIERO && frameCount % 3 == 0) {
         transmisorDePixeles.enviar(imagenFragmentada);
       }
       
-      // ENVÍO DE MENSAJES AL "PRODUCTOR" Y AL "ARRIERO"
+      // ENVÍO DE MENSAJES AL "CAPATAZ", al "PRODUCTOR" y al "ARRIERO"
       if (frameCount % 1 == 0) {
+        // Este transmisor envía el mensaje OSC tanto al "Productor" como
+        // al "Arriero" para que ambos tengan la imagen fragmentada
         transmisorDeFragmentos.enviar(imagenFragmentada);
-      }
-      
-      // ENVÍO DE MENSAJES AL "CAPATAZ"
-      if (frameCount % 2 == 0) {
+        
+        // Finalmente al "Capataz" se le envío el "Flujo Óptico"
         transmisorDeEventos.enviar(flujoOptico, MENSAJE_OSC_FLUJO_OPTICO);
       }
     }
@@ -218,7 +218,7 @@ void oscEvent(OscMessage mensajeEntrante) {
       if (pantalla == 6) {
         int modo = int(random(0, 6)) + 1;
         fragmentador.configurar(modo == 1 ? '1' : modo == 2 ? '2' : modo == 3 ? '3' : modo == 4 ? '4' : modo == 5 ? '5' : '6');
-        println("Cambiando MODO=" + modo);
+        //println("Cambiando MODO=" + modo);
       }
     }
   }
