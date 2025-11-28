@@ -18,9 +18,14 @@ final int VIDEO_ALTO  = 720;
 
 // CONFIGURACIÓN DE PARÁMETROS PARA EL ENVÍO DE MENSAJES OSC
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-// Este módulo sólo se ocupa de recibir mensajes, por lo tanto alcanza
-// con definir únicamente el puerto donde está escuchando.
-final int PUERTO_LOCAL = 12012;
+// Este módulo recibe mensajes del "Capataz" y reenvía al "Vichador"
+// CONFIGURACIÓN LOCAL
+final String IP_DEL_CAPATAZ    = "192.168.0.5";
+final String IP_DEL_VICHADOR   = "192.168.0.5";
+final String IP_DEL_PRODUCTOR  = "192.168.0.5";
+final int PUERTO_LOCAL         = 12012;
+final int PUERTO_DEL_CAPATAZ   = 9000;
+final int PUERTO_DEL_VICHADOR  = 12000;
 
 
 // CONFIGURACIÓN DE LA CANTIDAD DE PANTALLAS A PROYECTAR
@@ -46,14 +51,19 @@ final int PANTALLA_ALTO  = PANTALLA_ANCHO * PROPORCION_ALTO / PROPORCION_ANCHO;
 // Definición de los nombres de los eventos OSC (sus direcciones) que son 
 // recibidos desde el módulo "Vichador" y desde el "Capataz".
 //
-final String MENSAJE_OSC_ACTIVACION = "/granja/activar";
-final String MENSAJE_OSC_FOTOGRAMA  = "/granja/fotograma";
+final String MENSAJE_OSC_ACTIVACION    = "/granja/activar";
+final String MENSAJE_OSC_DESACTIVACION = "/granja/desactivar";
+final String MENSAJE_OSC_FOTOGRAMA     = "/granja/fotograma";
+final String MENSAJE_OSC_CIERRE        = "/granja/cierre";
+final String MENSAJE_OSC_PAUSA         = "/granja/pausa";
 
 // Definición de las pantallas
-Pantalla pantalla01, pantalla02, pantalla03, pantalla04, pantalla05;
+Pantalla pantalla01, pantalla02, pantalla03, pantalla04, pantalla05, pantalla06;
 
 // Definición del de mensajes OSC
-ReceptorOSC receptor;
+TransmisorOSC receptor;
+TransmisorOSC emisor;
+
 
 // Definición de la difusora para transmitir el video
 Difusora difusora;
@@ -92,15 +102,18 @@ void setup() {
   // Inicialización de los parámetros para la fragmentación
   corraleta = new Corraleta();
   
-  // Creación de las pantallas
-  pantalla01 = new Pantalla(this, 1, PANTALLA_ANCHO, PANTALLA_ALTO);
-  pantalla02 = new Pantalla(this, 2, PANTALLA_ANCHO, PANTALLA_ALTO);
-  pantalla03 = new PantallaFragmentada(this, 3, PANTALLA_ANCHO, PANTALLA_ALTO, corraleta);
-  pantalla04 = new Pantalla(this, 4, PANTALLA_ANCHO, PANTALLA_ALTO);
-  pantalla05 = new Pantalla(this, 5, PANTALLA_ANCHO, PANTALLA_ALTO);
+  // Inicialización del receptor y el emisor
+  receptor = new TransmisorOSC(this, PUERTO_LOCAL, null, 0); 
+  emisor   = new TransmisorOSC(this, PUERTO_LOCAL, IP_DEL_VICHADOR, PUERTO_DEL_VICHADOR); 
   
-  // Inicialización de los receptores
-  receptor = new ReceptorOSC(this, PUERTO_LOCAL); 
+  
+  // Creación de las pantallas
+  pantalla01 = new Pantalla     (this, 1, PANTALLA_ANCHO, PANTALLA_ALTO);
+  pantalla02 = new Pantalla     (this, 2, PANTALLA_ANCHO, PANTALLA_ALTO);
+  pantalla03 = new PantallaFRAG (this, 3, PANTALLA_ANCHO, PANTALLA_ALTO, corraleta);
+  pantalla04 = new Pantalla     (this, 4, PANTALLA_ANCHO, PANTALLA_ALTO);
+  pantalla05 = new Pantalla     (this, 5, PANTALLA_ANCHO, PANTALLA_ALTO);
+  pantalla06 = new PantallaLED  (this, 6, PANTALLA_ANCHO, PANTALLA_ALTO, emisor);
   
   // Creación de la "Difusora" encargada de la transmisión del
   // video generado por el "Productor" a través de Spout.
@@ -114,6 +127,17 @@ void setup() {
  * la ventana principal.
  */
 void draw() {
+  
+  // Procesar el contenido de cada pantalla
+  pantalla01.procesar();
+  pantalla02.procesar();
+  pantalla03.procesar();
+  pantalla04.procesar();
+  pantalla05.procesar();
+  pantalla06.procesar();
+
+  
+  // Dibujar los contenidos de cada pantalla
   int bordeSuperior = (VIDEO_ALTO - PANTALLA_ALTO) / 2;
   pantalla01.mostrar(PANTALLA_BORDE, bordeSuperior);
   pantalla02.mostrar(PANTALLA_BORDE * 2 + PANTALLA_ANCHO, bordeSuperior);
@@ -159,7 +183,7 @@ void oscEvent(OscMessage mensajeEntrante) {
   // El mensaje contiene la información de la pantalla que debe ser
   // activada, es decir, disparar la operación de enturbiamiento.
   else if (mensajeEntrante.checkAddrPattern(MENSAJE_OSC_ACTIVACION)) {
-    if (mensajeEntrante.checkTypetag("i")) {
+    if (mensajeEntrante.checkTypetag("if")) {
       int pantalla = mensajeEntrante.get(0).intValue();
       if (pantalla == 1)
         pantalla01.activar(0);
@@ -171,10 +195,8 @@ void oscEvent(OscMessage mensajeEntrante) {
         pantalla04.activar(0);
       else if (pantalla == 5)
         pantalla05.activar(0);
- 
-
-      // Activar el entubiamiento de la pantalla
-      println("Activación de PANTALLA #" + pantalla);
+      else if (pantalla == 6)
+        pantalla06.activar(0);
     }
   } 
 }

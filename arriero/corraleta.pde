@@ -62,6 +62,8 @@ class Corraleta {
     for (int j = 0; j < FRAGMENTADOR_ALTO; j++) {
       for (int i = 0; i < FRAGMENTADOR_ANCHO; i++) {
         fill(imagen.pixels[indice]);
+        strokeWeight(1);
+        stroke(0);
         rect(posX + (i * FRAGMENTO_ANCHO), posY + (j * FRAGMENTO_ALTO), FRAGMENTO_ANCHO, FRAGMENTO_ALTO);
         indice++;
       }

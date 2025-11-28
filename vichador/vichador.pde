@@ -82,6 +82,8 @@ final String MENSAJE_OSC_FLUJO_OPTICO = "/granja/flujo";
 final String MENSAJE_OSC_FOTOGRAMA    = "/granja/fotograma";
 final String MENSAJE_OSC_CIERRE       = "/granja/cierre";
 final String MENSAJE_OSC_PAUSA        = "/granja/pausa";
+final String MENSAJE_OSC_ACTIVACION    = "/granja/activar";
+final String MENSAJE_OSC_DESACTIVACION = "/granja/desactivar";
 
 
 // VARIABLES GLOBALES PARA EL PROCESAMIENTO
@@ -198,6 +200,36 @@ void draw() {
   }
 }
 
+
+/**
+ * oscEvent
+ * Función principal de la librería oscP5 que es invocada de
+ * forma automática cada vez que un evento OSC es recibido.
+ */
+void oscEvent(OscMessage mensajeEntrante) {
+
+  // MENSAJE DE ACTIVACIÓN DEL PRODUCTOR
+  // El "Productor" le reenvía el mensaje de activación
+  // de la pantalla de leds para que el "Vichador" pueda
+  // modificar el modo de fragmentación.
+  if (mensajeEntrante.checkAddrPattern(MENSAJE_OSC_ACTIVACION)) {
+    if (mensajeEntrante.checkTypetag("if")) {
+      int pantalla = mensajeEntrante.get(0).intValue();
+      if (pantalla == 6) {
+        println("Activar pantalla #6");
+      }
+    }
+  }
+  if (mensajeEntrante.checkAddrPattern(MENSAJE_OSC_DESACTIVACION)) {
+    if (mensajeEntrante.checkTypetag("if")) {
+      int pantalla = mensajeEntrante.get(0).intValue();
+      if (pantalla == 6) {
+        println("Desactivar pantalla #6");
+      }
+    }
+  }
+ 
+}
 
 /**
  * keyPressed

@@ -17,11 +17,10 @@ boolean oscInicializado = false;
 class TransmisorOSC implements Transmisor {  
   NetAddress direccionRemota;
   NetAddress direccionAdicional;
-  OscMessage mensajeOSC;
   byte[] datos = {0x00, 0x00, 0x00, 0x00, 0x00};
   byte paquete[] = new byte[825];
   boolean replicador = false;
-
+  
   
   public TransmisorOSC(PApplet contenedor) {
     this(contenedor, 12000, "127.0.0.1", 12001);
@@ -39,7 +38,9 @@ class TransmisorOSC implements Transmisor {
                 ". El servidor ya se encuentra escuchando en el puerto " + puertoEntrante);
       }
     }
-    direccionRemota = new NetAddress(ipDestino, puertoDestino);
+    if (ipDestino != null || puertoDestino != 0) {
+      direccionRemota = new NetAddress(ipDestino, puertoDestino);
+    }
   }
   
   public TransmisorOSC replicar(String ipDestino, int puertoDestino) {
@@ -49,9 +50,21 @@ class TransmisorOSC implements Transmisor {
   }
   
   
+  public void enviar(int numero, float valor, String direccion) {
+    if (oscInicializado) {
+      OscMessage mensajeOSC = new OscMessage(direccion);
+      mensajeOSC.add(numero);
+      mensajeOSC.add(valor);
+      oscP5.send(mensajeOSC, direccionRemota);
+      if (replicador) {
+        oscP5.send(mensajeOSC, direccionAdicional);
+      }
+    }
+  } 
+  
   public void enviar(byte[] paquete, String direccion) {
     if (oscInicializado) {
-      mensajeOSC = new OscMessage(direccion);
+      OscMessage mensajeOSC = new OscMessage(direccion);
       mensajeOSC.add(paquete);
       oscP5.send(mensajeOSC, direccionRemota);
       if (replicador) {

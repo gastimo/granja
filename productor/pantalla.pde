@@ -6,12 +6,20 @@
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 
+// CONFIGURACIÓN DE PARÁMETROS PARA ACTIVACIÓN DE PANTALLAS
+// vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+// La gráfica para las 5 pantallas se genera en formato Full HD
+final int DURACION_ACTIVACION = 500;
+
+
 class Pantalla {
   int identificador;
   int ancho, alto;
   PApplet ventana;
   PGraphics contenido;
   PShader shader;
+  int inicioActivacion = 0;
+  int finActivacion = 0;
   
   public Pantalla(PApplet contenedor, int id) {
     this(contenedor, id, PANTALLA_ANCHO, PANTALLA_ALTO);
@@ -32,7 +40,25 @@ class Pantalla {
     pop();
   }
   
+  public void procesar() {
+    if (inicioActivacion > 0 && millis() > finActivacion) {
+      desactivar();
+    }
+  }
+  
+  public boolean estaActiva() {
+      return millis() <= finActivacion;
+  }
+  
   public void activar(float valor) {
-    println(">>> PANTALLA ACTIVADA");
+    inicioActivacion = millis();
+    finActivacion = inicioActivacion + DURACION_ACTIVACION;
+    println(">>> PANTALLA " + identificador + " ACTIVADA");
+  }
+  
+  public void desactivar() {
+    inicioActivacion  = 0;
+    finActivacion = 0;
+    println(">>> PANTALLA " + identificador + " DESACTIVADA");
   }
 }

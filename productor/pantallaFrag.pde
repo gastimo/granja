@@ -1,15 +1,15 @@
 // 
-// PANTALLA
-// Pantalla fragmentada
+// PANTALLA "FRAG"
+// Pantalla FRAGMENTADA
 //
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 
-class PantallaFragmentada extends Pantalla {
+class PantallaFRAG extends Pantalla {
   
     Corraleta imagenFragmentada;
     
-    public PantallaFragmentada(PApplet contenedor, int id, int pantallaAncho, int pantallaAlto, Corraleta corraleta) {
+    public PantallaFRAG(PApplet contenedor, int id, int pantallaAncho, int pantallaAlto, Corraleta corraleta) {
       super(contenedor, id, pantallaAncho, pantallaAlto);
       imagenFragmentada = corraleta;
   }
