@@ -216,7 +216,9 @@ void oscEvent(OscMessage mensajeEntrante) {
     if (mensajeEntrante.checkTypetag("if")) {
       int pantalla = mensajeEntrante.get(0).intValue();
       if (pantalla == 6) {
-        println("Activar pantalla #6");
+        int modo = int(random(0, 6)) + 1;
+        fragmentador.configurar(modo == 1 ? '1' : modo == 2 ? '2' : modo == 3 ? '3' : modo == 4 ? '4' : modo == 5 ? '5' : '6');
+        println("Cambiando MODO=" + modo);
       }
     }
   }
@@ -224,7 +226,7 @@ void oscEvent(OscMessage mensajeEntrante) {
     if (mensajeEntrante.checkTypetag("if")) {
       int pantalla = mensajeEntrante.get(0).intValue();
       if (pantalla == 6) {
-        println("Desactivar pantalla #6");
+        fragmentador.configurar('0');
       }
     }
   }
