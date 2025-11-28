@@ -14,6 +14,6 @@ final int CODIGO_PAUSA         = 99;
 interface Transmisor {
   
   public void enviar(PImage imagen);
-  public void enviar(byte[] paquete, String dirección);
+  public void enviar(byte[] paquete, String direccion);
 
 }

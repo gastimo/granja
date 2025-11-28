@@ -35,7 +35,7 @@ boolean MONITOREO_ACTIVADO = true;
 //  - FALSE: el "Vichador" envía los pixeles a la pantalla (serial)
 //  - TRUE : el "Vichador" envía los píxeles al "Arriero" (OSC)
 // 
-boolean ENVIAR_PIXELES_AL_ARRIERO = false;
+boolean ENVIAR_PIXELES_AL_ARRIERO = true;
 
 
 // CONFIGURACIÓN DE PARÁMETROS PARA EL ENVÍO DE MENSAJES OSC
@@ -43,16 +43,26 @@ boolean ENVIAR_PIXELES_AL_ARRIERO = false;
 // Configuración de las direcciones IPs y de los puertos para transmitir
 // mensajes vía protocolo OSC
 //
-final String IP_DEL_CAPATAZ    = "192.168.0.211";
+// CONFIGURACIÓN LOCAL
+final String IP_DEL_CAPATAZ    = "192.168.0.5";
 final String IP_DEL_VICHADOR   = "192.168.0.5";
-final String IP_DEL_ARRIERO    = "192.168.0.5";
+final String IP_DEL_ARRIERO    = "192.168.0.9";
 final String IP_DEL_PRODUCTOR  = "192.168.0.5";
 final int PUERTO_LOCAL         = 12000;
 final int PUERTO_DEL_CAPATAZ   = 9000;
 final int PUERTO_DEL_ARRIERO   = 12011;
 final int PUERTO_DEL_PRODUCTOR = 12012;
-
-
+/*
+// CONFIGURACIÓN PARA "CASA BELGRADO"
+final String IP_DEL_CAPATAZ    = "192.168.1.43";
+final String IP_DEL_VICHADOR   = "192.168.1.49";
+final String IP_DEL_ARRIERO    = "192.168.1.49";
+final String IP_DEL_PRODUCTOR  = "192.168.1.49";
+final int PUERTO_LOCAL         = 12000;
+final int PUERTO_DEL_CAPATAZ   = 9000;
+final int PUERTO_DEL_ARRIERO   = 12011;
+final int PUERTO_DEL_PRODUCTOR = 12012;
+*/
 
 // PARÁMETROS PARA EL CÁLCULO DEL FLUJO OPTICO
 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv

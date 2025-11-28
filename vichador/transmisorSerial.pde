@@ -58,7 +58,7 @@ class TransmisorSerial implements Transmisor {
     }
   }
   
-  public void enviar(byte[] paquete, String dirección) {
+  public void enviar(byte[] paquete, String direccion) {
     enviar(paquete);
   }
 

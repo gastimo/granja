@@ -49,9 +49,9 @@ class TransmisorOSC implements Transmisor {
   }
   
   
-  public void enviar(byte[] paquete, String dirección) {
+  public void enviar(byte[] paquete, String direccion) {
     if (oscInicializado) {
-      mensajeOSC = new OscMessage(dirección);
+      mensajeOSC = new OscMessage(direccion);
       mensajeOSC.add(paquete);
       oscP5.send(mensajeOSC, direccionRemota);
       if (replicador) {
